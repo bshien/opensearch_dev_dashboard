@@ -13,13 +13,15 @@
                 <th>Result</th>
                 <th>Version</th>
             </tr>
-            <% for(let i = 0; i < 10; i++){ %>
+            <% for(let i = 0; i < 30; i++){ %>
             <tr>
                 <td><%= builds_array[i].build_num %></td>
                 <td><%= builds_array[i].running %></td>
                 <td><%= builds_array[i].result %></td>
                 <td><%= builds_array[i].version %></td>
-                <td><a href="new">Other page</a></td>
+                <% if(builds_array[i].version) { %>
+                <td><a href="new/<%= builds_array[i].build_num %>-<%= builds_array[i].version %>">Plugins</a></td>
+                <% } %>
             </tr>
             <% } %>
         </table>

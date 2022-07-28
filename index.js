@@ -6,23 +6,42 @@ const yaml = require('js-yaml');
 const fs = require('fs');
 const app = express();
 const port = 3000;
-//const ran = 3;
+let manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.2.0/5821/linux/x64/tar/builds/opensearch/manifest.yml';
 
-let yaml_parse = async (url) =>{
-    const yamlSchema = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    }).then(res => res.body);
-    //const jsonSchema = yaml.load(yamlSchema);
-    //const yamljson = await yamlSchema.json()
-    console.log(yamlSchema);
+// version in the format of: x.x.x
+// build number in the format of: xxxx
+function change_manifest_url(build_num, version){
+    manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/' + version + '/' + build_num + '/linux/x64/tar/builds/opensearch/manifest.yml';
 }
 
+function download_manifest(manifest_url, old_res){
+    https.get(manifest_url,(res) => {
+        const path = `${__dirname}/files/manifest_test.yml`; 
+        const filePath = fs.createWriteStream(path);
+        res.pipe(filePath);
+        filePath.on('finish',() => {
+            filePath.close();
+            console.log('Download Completed');
+            try {
+                const manifest_json = yaml.load(fs.readFileSync('files/manifest_test.yml', 'utf8'));
+                //console.log(manifest_json);
+                old_res.render('new', {manifest_json: manifest_json});
+              } catch (e) {
+                console.log(e);
+            }
+        })
+    })
+}
 
-// URL of the manifest
-const manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.2.0/5821/linux/x64/tar/builds/opensearch/manifest.yml';
+function yaml_to_json(){
+    try {
+        const manifest_json = yaml.load(fs.readFileSync('files/manifest_test.yml', 'utf8'));
+        console.log(manifest_json);
+      } catch (e) {
+        console.log(e);
+    }
+}
+
 
 let build_nums = []
 
@@ -40,52 +59,35 @@ let fetchh = async (res) => {
     });
     // jobs_json.allBuilds.forEach(build => build_nums.push(build.number));
 
-    //console.log(build_nums);
 
-    for(let i = 0; i < 10; i++){
+    for(let i = 0; i < 30; i++){
         let new_url = builds_url + '/' + build_nums[i].build_num.toString() + '/api/json';
-        console.log(new_url);
+        //console.log(new_url);
         let specific_build = await fetch(new_url);
         let build_json = await specific_build.json();
-        console.log(build_json);
+        //console.log(build_json);
         build_nums[i].result = build_json.result;
-        build_nums[i].version = build_json.description.slice(0, build_json.description.indexOf("/"));
+        build_nums[i].version = build_json.description?.slice(0, build_json.description.indexOf("/"));
         build_nums[i].running = build_json.building ? "Running" : "Done";
-
-
     }
-    console.log(build_nums);
-    //console.log(jobs_json);
+    //console.log(build_nums);
     res.render('index', {builds_array: build_nums}); 
-    //console.log(await(await fetch('https://build.ci.opensearch.org/job/distribution-build-opensearch/api/json')).json());
 }
 
 app.set('view engine', 'ejs');  
 
 app.get('/', function(req, res){
-    //res.send('Hello World!');
     fetchh(res);
-    //res.render('index', {ran: build_nums }); 
 });
 
-app.get('/new', function(req, res){
-    res.render('new');
+app.get('/new/:build_number-:version', function(req, res){
+    change_manifest_url(req.params.build_number, req.params.version);
+    download_manifest(manifest_url, res);
+    
 })
 
 app.listen(port, function(){
     console.log(`Example app listening on ${port}!`);
-    //const mani = yaml.load(fs.readFileSync('manifest.yml', 'utf8'));
-    //console.log(mani);
-    //yaml_parse("https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.2.0/5821/linux/x64/tar/builds/opensearch/manifest.yml")
-    https.get(manifest_url,(res) => {
-        // Image will be stored at this path
-        const path = `${__dirname}/files/manifest_test.yml`; 
-        const filePath = fs.createWriteStream(path);
-        res.pipe(filePath);
-        filePath.on('finish',() => {
-            filePath.close();
-            console.log('Download Completed'); 
-        })
-    })
-    //fetchh();
+    // download_manifest(manifest_url);
+    // yaml_to_json();
 });
