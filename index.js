@@ -5,7 +5,7 @@ const https = require('https');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 let manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.2.0/5821/linux/x64/tar/builds/opensearch/manifest.yml';
 
 // version in the format of: x.x.x
