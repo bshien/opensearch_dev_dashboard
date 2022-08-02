@@ -10,10 +10,12 @@
             <tr>
                 <th>Plugin</th>
             </tr>
+            <% if(manifest_json.components){ %>
             <% for(let i = 0; i < manifest_json.components.length; i++){ %>
             <tr>
                 <td><%= manifest_json.components[i].name %></td>
             </tr>
+            <% } %>
             <% } %>
         </table>
     </body>

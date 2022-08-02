@@ -33,6 +33,19 @@ function download_manifest(manifest_url, old_res){
     })
 }
 
+function convert_build_duration(ms){
+    let s = ms/1000;
+    let m = s / 60;
+    let h = m / 60;
+    if(Math.trunc(h) > 0){
+        return `${Math.trunc(h)}h ${Math.trunc(m%60)}m ${Math.trunc(s%60)}s`;
+    }
+    if(Math.trunc(m) > 0){
+        return `${Math.trunc(m)}m ${Math.trunc(s%60)}s`;
+    }
+    return `${Math.trunc(s)}s`; 
+}
+
 function yaml_to_json(){
     try {
         const manifest_json = yaml.load(fs.readFileSync('files/manifest_test.yml', 'utf8'));
@@ -69,6 +82,16 @@ let fetchh = async (res) => {
         build_nums[i].result = build_json.result;
         build_nums[i].version = build_json.description?.slice(0, build_json.description.indexOf("/"));
         build_nums[i].running = build_json.building ? "Running" : "Done";
+        const date = new Date(build_json.timestamp);
+        build_nums[i].start_time = date.toLocaleString('en-US', {
+            timeZone: 'America/Los_Angeles',
+            dateStyle: 'short',
+            timeStyle: 'short',
+            
+        });
+        build_nums[i].duration = convert_build_duration(build_json.duration);
+
+
     }
     //console.log(build_nums);
     res.render('index', {builds_array: build_nums}); 

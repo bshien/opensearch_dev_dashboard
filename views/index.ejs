@@ -12,13 +12,18 @@
                 <th>Running?</th>
                 <th>Result</th>
                 <th>Version</th>
+                <th>Start Time(PDT)</th>
+                <th>Duration</th>
+
             </tr>
             <% for(let i = 0; i < 30; i++){ %>
             <tr>
-                <td><%= builds_array[i].build_num %></td>
+                <td><a href="https://build.ci.opensearch.org/job/distribution-build-opensearch/<%= builds_array[i].build_num %>"><%= builds_array[i].build_num %></a></td>
                 <td><%= builds_array[i].running %></td>
                 <td><%= builds_array[i].result %></td>
                 <td><%= builds_array[i].version %></td>
+                <td><%= builds_array[i].start_time %></td>
+                <td><%= builds_array[i].duration %></td>
                 <% if(builds_array[i].version) { %>
                 <td><a href="new/<%= builds_array[i].build_num %>-<%= builds_array[i].version %>">Plugins</a></td>
                 <% } %>
