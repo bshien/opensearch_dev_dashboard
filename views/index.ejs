@@ -14,6 +14,9 @@
                 <th>Version</th>
                 <th>Start Time(PDT)</th>
                 <th>Duration</th>
+                <th>Plugin List</th>
+                <th>Artifacts(Tar)</th>
+                <th>Artifacts(RPM)</th>
 
             </tr>
             <% for(let i = 0; i < 30; i++){ %>
@@ -26,6 +29,11 @@
                 <td><%= builds_array[i].duration %></td>
                 <% if(builds_array[i].version) { %>
                 <td><a href="new/<%= builds_array[i].build_num %>-<%= builds_array[i].version %>">Plugins</a></td>
+                <% } %>
+                <% if(builds_array[i].result === "SUCCESS") { %>
+                <td><a href="<%= builds_array[i].x64_tar %>">x64</a><br><a href="<%= builds_array[i].arm64_tar %>">arm64</a></td>
+                <td><a href="<%= builds_array[i].x64_rpm %>">x64</a><br><a href="<%= builds_array[i].arm64_rpm %>">arm64</a></td>
+                
                 <% } %>
             </tr>
             <% } %>

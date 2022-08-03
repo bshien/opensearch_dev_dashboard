@@ -14,10 +14,19 @@ function change_manifest_url(build_num, version){
     manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/' + version + '/' + build_num + '/linux/x64/tar/builds/opensearch/manifest.yml';
 }
 
+function create_artifact_url(build_num, version, architecture, type){
+    return 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/' + version + '/' + build_num + '/linux/' + architecture + '/' + type
+    + '/dist/opensearch/opensearch-' + version + '-linux-' + architecture + '.' + type + (type === 'tar' ? '.gz' : '');
+}
+
+function create_yml_url(build_num){
+    return 'https://build.ci.opensearch.org/job/distribution-build-opensearch/' + build_num + '/artifact/commits.yml';
+}
+
 function download_manifest(manifest_url, old_res){
     https.get(manifest_url,(res) => {
         const path = `${__dirname}/files/manifest_test.yml`; 
-        const filePath = fs.createWriteStream(path);
+        const filePath = fs.createWriteStream(path, {flags: 'w+'});
         res.pipe(filePath);
         filePath.on('finish',() => {
             filePath.close();
@@ -33,6 +42,21 @@ function download_manifest(manifest_url, old_res){
     })
 }
 
+function download_yml(yml_url, build_num){
+    https.get(yml_url,(res) => {
+        const path = `${__dirname}/${build_num}/commits.yml`; 
+        const filePath = fs.createWriteStream(path, {flags: 'w+'});
+        res.pipe(filePath);
+        filePath.on('finish',() => {
+            filePath.close();
+            console.log('yml Download Completed');
+        })
+    })
+}
+function yml_exists(build_num){
+    return fs.existsSync(build_num.toString());
+    
+}
 function convert_build_duration(ms){
     let s = ms/1000;
     let m = s / 60;
@@ -68,30 +92,58 @@ let fetchh = async (res) => {
     build_nums = []
     jobs_json.builds.forEach(build => {
         build_nums.push({build_num: build.number});
+        //console.log(`${build.number} exists:`, yml_exists(build.number))
 
     });
     // jobs_json.allBuilds.forEach(build => build_nums.push(build.number));
 
 
-    for(let i = 0; i < 30; i++){
-        let new_url = builds_url + '/' + build_nums[i].build_num.toString() + '/api/json';
-        //console.log(new_url);
-        let specific_build = await fetch(new_url);
-        let build_json = await specific_build.json();
-        //console.log(build_json);
-        build_nums[i].result = build_json.result;
-        build_nums[i].version = build_json.description?.slice(0, build_json.description.indexOf("/"));
-        build_nums[i].running = build_json.building ? "Running" : "Done";
-        const date = new Date(build_json.timestamp);
-        build_nums[i].start_time = date.toLocaleString('en-US', {
-            timeZone: 'America/Los_Angeles',
-            dateStyle: 'short',
-            timeStyle: 'short',
+    for(let i = 0; i < 5; i++){
+        if(yml_exists(build_nums[i].build_num)){
+            try {
+                const yml_json = yaml.load(fs.readFileSync(`${build_nums[i].build_num}/commits.yml`, 'utf8'));
+                console.log(yml_json);
+                build_nums[i].version = yml_json.build.version;
+              } catch (e) {
+                console.log(e);
+            }
             
-        });
-        build_nums[i].duration = convert_build_duration(build_json.duration);
 
+        }
+        else {
+            let new_url = builds_url + '/' + build_nums[i].build_num.toString() + '/api/json';
+            //console.log(new_url);
+            let specific_build = await fetch(new_url);
+            let build_json = await specific_build.json();
+            //console.log(build_json);
+            if(!build_json.building){
+                fs.mkdir(build_nums[i].build_num.toString(), (err)=>{
+                    if(err){
+                        console.log(err);
+                    }
+                    else{
+                        console.log(`Directory ${build_nums[i].build_num} created`)
+                    }
+                });
+                download_yml(create_yml_url(build_nums[i].build_num), build_nums[i].build_num);
 
+            }
+            build_nums[i].result = build_json.result;
+            build_nums[i].version = build_json.description?.slice(0, build_json.description.indexOf("/"));
+            build_nums[i].running = build_json.building ? "Running" : "Done";
+            const date = new Date(build_json.timestamp);
+            build_nums[i].start_time = date.toLocaleString('en-US', {
+                timeZone: 'America/Los_Angeles',
+                dateStyle: 'short',
+                timeStyle: 'short',
+                
+            });
+            build_nums[i].duration = convert_build_duration(build_json.duration);
+            build_nums[i].x64_tar = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'x64', 'tar');
+            build_nums[i].arm64_tar = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'arm64', 'tar');
+            build_nums[i].x64_rpm = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'x64', 'rpm');
+            build_nums[i].arm64_rpm = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'arm64', 'rpm');
+        }
     }
     //console.log(build_nums);
     res.render('index', {builds_array: build_nums}); 
@@ -109,8 +161,13 @@ app.get('/new/:build_number-:version', function(req, res){
     
 })
 
+
 app.listen(port, function(){
     console.log(`Example app listening on ${port}!`);
+    const file = 'files';
+    fs.access(file, fs.constants.F_OK, (err) => {
+        console.log(`${file} ${err ? 'does not exist' : 'exists'}`);
+    });
     // download_manifest(manifest_url);
     // yaml_to_json();
 });
