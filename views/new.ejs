@@ -5,15 +5,17 @@
     </head>
 
     <body>
-        <h1>new page</h1>
+        <h1>Commits</h1>
         <table>
             <tr>
                 <th>Plugin</th>
+                <th>Github Link</th>
             </tr>
-            <% if(manifest_json.components){ %>
-            <% for(let i = 0; i < manifest_json.components.length; i++){ %>
+            <% if(yml_json.components){ %>
+            <% for(let i = 0; i < yml_json.components.length; i++){ %>
             <tr>
-                <td><%= manifest_json.components[i].name %></td>
+                <td><%= yml_json.components[i].name %></td>
+                <td><a href="<%= yml_json.components[i].repository.slice(0, -4) + '/commit/' + yml_json.components[i].ref%>">Github</a></td>
             </tr>
             <% } %>
             <% } %>

@@ -5,7 +5,7 @@
     </head>
 
     <body>
-        <h1>EJS WORKS</h1>
+        <h1>OpenSearch</h1>
         <table>
             <tr>
                 <th>Number</th>
@@ -14,12 +14,12 @@
                 <th>Version</th>
                 <th>Start Time(PDT)</th>
                 <th>Duration</th>
-                <th>Plugin List</th>
+                <th>Commits</th>
                 <th>Artifacts(Tar)</th>
                 <th>Artifacts(RPM)</th>
 
             </tr>
-            <% for(let i = 0; i < 30; i++){ %>
+            <% for(let i = 0; i < NUM_OF_BUILDS; i++){ %>
             <tr>
                 <td><a href="https://build.ci.opensearch.org/job/distribution-build-opensearch/<%= builds_array[i].build_num %>"><%= builds_array[i].build_num %></a></td>
                 <td><%= builds_array[i].running %></td>
@@ -27,8 +27,8 @@
                 <td><%= builds_array[i].version %></td>
                 <td><%= builds_array[i].start_time %></td>
                 <td><%= builds_array[i].duration %></td>
-                <% if(builds_array[i].version) { %>
-                <td><a href="new/<%= builds_array[i].build_num %>-<%= builds_array[i].version %>">Plugins</a></td>
+                <% if(builds_array[i].running === "Done") { %>
+                <td><a href="commits/<%= builds_array[i].build_num %>">Commits</a></td>
                 <% } %>
                 <% if(builds_array[i].result === "SUCCESS") { %>
                 <td><a href="<%= builds_array[i].x64_tar %>">x64</a><br><a href="<%= builds_array[i].arm64_tar %>">arm64</a></td>
