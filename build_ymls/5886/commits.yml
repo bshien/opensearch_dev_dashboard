@@ -1,0 +1,57 @@
+---
+schema-version: '1.0'
+build:
+  name: OpenSearch
+  version: 2.2.0
+ci:
+  image:
+    name: opensearchstaging/ci-runner:ci-runner-centos7-opensearch-build-v2
+    args: -e JAVA_HOME=/opt/java/openjdk-17
+components:
+  - name: OpenSearch
+    repository: https://github.com/opensearch-project/OpenSearch.git
+    ref: '89c30b20bbc44ec1d94193cd38ffbba4b18d256c'
+    checks:
+      - gradle:publish
+      - gradle:properties:version
+  - name: common-utils
+    repository: https://github.com/opensearch-project/common-utils.git
+    ref: '7d531022af8f5c4ec3ef38194596b4f6ccd5bb6b'
+    checks:
+      - gradle:publish
+      - gradle:properties:version
+  - name: job-scheduler
+    repository: https://github.com/opensearch-project/job-scheduler.git
+    ref: 'a5013073ec8de9b7af6fa439c2f4d6fd9af8881d'
+    checks:
+      - gradle:properties:version
+      - gradle:dependencies:opensearch.version
+  - name: ml-commons
+    repository: https://github.com/opensearch-project/ml-commons.git
+    ref: '3b8b01c5d6750152ec8ba21895b0ba955279ffbf'
+    checks:
+      - gradle:properties:version
+      - gradle:dependencies:opensearch.version: opensearch-ml-plugin
+  - name: security
+    repository: https://github.com/opensearch-project/security.git
+    ref: 'd375be21056d01e401779bac4c1f6296a6f28cf3'
+  - name: geospatial
+    repository: https://github.com/opensearch-project/geospatial.git
+    ref: 'a71475ab3b0de008ca352e290d99fb3b53f1a1c5'
+    checks:
+      - gradle:properties:version
+      - gradle:dependencies:opensearch.version
+  - name: k-NN
+    repository: https://github.com/opensearch-project/k-NN.git
+    ref: '53185a0f165ebe1f8c3e01fd80a867727ba3674f'
+    platforms:
+      - linux
+    checks:
+      - gradle:properties:version
+      - gradle:dependencies:opensearch.version
+  - name: cross-cluster-replication
+    repository: https://github.com/opensearch-project/cross-cluster-replication.git
+    ref: '14d871a152ec1e04ffcad1e6e94c9bcc21f0580d'
+    checks:
+      - gradle:properties:version
+      - gradle:dependencies:opensearch.version

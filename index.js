@@ -9,6 +9,7 @@ const port = process.env.PORT || 3000;
 const NUM_OF_BUILDS = 30;
 const build_num_set = {};
 
+
 let manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.2.0/5821/linux/x64/tar/builds/opensearch/manifest.yml';
 
 // version in the format of: x.x.x
@@ -24,6 +25,21 @@ function create_artifact_url(build_num, version, architecture, type){
 
 function create_yml_url(build_num){
     return 'https://build.ci.opensearch.org/job/distribution-build-opensearch/' + build_num + '/artifact/commits.yml';
+}
+
+
+function change_formatting(str){
+    if(str === 'k-NN'){
+        return str + ': OpenSearch Plugin';
+    }
+    if(str === 'ml-commons'){
+        return 'Machine Learning Commons';
+    }
+    let splitStr = str.split('-');
+    for (let i = 0; i < splitStr.length; i++) {
+        splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
+    }
+    return splitStr.join(' ') + ': OpenSearch Plugin'; 
 }
 
 function check_delete(build_nums){
@@ -186,7 +202,15 @@ app.get('/commits/:build_number', function(req, res){
     // change_manifest_url(req.params.build_number, req.params.version);
     // download_manifest(manifest_url, res);
     const yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
-    res.render('new', {yml_json: yml_json});
+    res.render('commits', {yml_json: yml_json});
+    
+})
+
+app.get('/CVE/:build_number', function(req, res){
+    // change_manifest_url(req.params.build_number, req.params.version);
+    // download_manifest(manifest_url, res);
+    const yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    res.render('CVE', {yml_json: yml_json, change_formatting: change_formatting});
     
 })
 

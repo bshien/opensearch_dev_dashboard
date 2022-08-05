@@ -15,6 +15,7 @@
                 <th>Start Time(PDT)</th>
                 <th>Duration</th>
                 <th>Commits</th>
+                <th>CVEs</th>
                 <th>Artifacts(Tar)</th>
                 <th>Artifacts(RPM)</th>
 
@@ -29,6 +30,9 @@
                 <td><%= builds_array[i].duration %></td>
                 <% if(builds_array[i].running === "Done") { %>
                 <td><a href="commits/<%= builds_array[i].build_num %>">Commits</a></td>
+                <% } %>
+                <% if(builds_array[i].running === "Done") { %>
+                    <td><a href="CVE/<%= builds_array[i].build_num %>">CVE</a></td>
                 <% } %>
                 <% if(builds_array[i].result === "SUCCESS") { %>
                 <td><a href="<%= builds_array[i].x64_tar %>">x64</a><br><a href="<%= builds_array[i].arm64_tar %>">arm64</a></td>
