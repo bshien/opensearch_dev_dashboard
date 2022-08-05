@@ -6,7 +6,8 @@ const yaml = require('js-yaml');
 const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000;
-const NUM_OF_BUILDS = 20;
+const NUM_OF_BUILDS = 30;
+const build_num_set = {};
 
 let manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.2.0/5821/linux/x64/tar/builds/opensearch/manifest.yml';
 
@@ -25,6 +26,22 @@ function create_yml_url(build_num){
     return 'https://build.ci.opensearch.org/job/distribution-build-opensearch/' + build_num + '/artifact/commits.yml';
 }
 
+function check_delete(build_nums){
+    fs.readdir('build_ymls', (err, files) => {
+        files.forEach(file => {
+            console.log(file, ' exists');
+            if(!(file in build_num_set)){
+                fs.rmSync(`build_ymls/${file}`, { recursive: true, force: true });
+                console.log(file, ' deleted');
+
+            }
+        });
+    });
+    // for(let i = 0; i < NUM_OF_BUILDS; i++){
+        
+    // }
+    
+}
 function download_manifest(manifest_url, old_res){
     https.get(manifest_url,(res) => {
         const path = `${__dirname}/files/manifest_test.yml`; 
@@ -92,11 +109,16 @@ let fetchh = async (res) => {
 
     let jobs_json = await jobs.json();
     build_nums = []
-    jobs_json.builds.forEach(build => {
-        build_nums.push({build_num: build.number});
-        //console.log(`${build.number} exists:`, yml_exists(build.number))
-
-    });
+    for(let i = 0; i < NUM_OF_BUILDS; i++){
+        build_nums.push({build_num: jobs_json.builds[i].number});
+        build_num_set[jobs_json.builds[i].number.toString()] = null;
+    }
+    console.log(build_nums);
+    // jobs_json.builds.forEach(build => {
+    //     build_nums.push({build_num: build.number});
+    //     
+    //     build_num_set[build.number.toString()] = null;
+    // });
     // jobs_json.allBuilds.forEach(build => build_nums.push(build.number));
 
 
@@ -150,6 +172,7 @@ let fetchh = async (res) => {
         build_nums[i].arm64_rpm = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'arm64', 'rpm');
     }
     //console.log(build_nums);
+    check_delete(build_nums);
     res.render('index', {builds_array: build_nums, NUM_OF_BUILDS: NUM_OF_BUILDS}); 
 }
 
