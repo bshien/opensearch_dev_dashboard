@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="css/styles.css">
     </head>
 
     <body>
@@ -21,7 +23,7 @@
 
             </tr>
             <% for(let i = 0; i < NUM_OF_BUILDS; i++){ %>
-            <tr>
+            <tr class="border">
                 <td><a href="https://build.ci.opensearch.org/job/distribution-build-opensearch/<%= builds_array[i].build_num %>"><%= builds_array[i].build_num %></a></td>
                 <td><%= builds_array[i].running %></td>
                 <td><%= builds_array[i].result %></td>
@@ -30,14 +32,21 @@
                 <td><%= builds_array[i].duration %></td>
                 <% if(builds_array[i].running === "Done") { %>
                 <td><a href="commits/<%= builds_array[i].build_num %>">Commits</a></td>
+                <% } else { %>
+                <td></td>
                 <% } %>
                 <% if(builds_array[i].running === "Done") { %>
                     <td><a href="CVE/<%= builds_array[i].build_num %>">CVE</a></td>
+                <% } else { %>
+                    <td></td>
                 <% } %>
                 <% if(builds_array[i].result === "SUCCESS") { %>
                 <td><a href="<%= builds_array[i].x64_tar %>">x64</a><br><a href="<%= builds_array[i].arm64_tar %>">arm64</a></td>
                 <td><a href="<%= builds_array[i].x64_rpm %>">x64</a><br><a href="<%= builds_array[i].arm64_rpm %>">arm64</a></td>
                 
+                <% } else { %>
+                    <td></td>
+                    <td></td>
                 <% } %>
             </tr>
             <% } %>

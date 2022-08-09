@@ -10,6 +10,7 @@ const NUM_OF_BUILDS = 30;
 const build_num_set = {};
 
 
+
 let manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.2.0/5821/linux/x64/tar/builds/opensearch/manifest.yml';
 
 // version in the format of: x.x.x
@@ -192,6 +193,8 @@ let fetchh = async (res) => {
     res.render('index', {builds_array: build_nums, NUM_OF_BUILDS: NUM_OF_BUILDS}); 
 }
 
+app.use(express.static(__dirname + '/public'));
+
 app.set('view engine', 'ejs');  
 
 app.get('/', function(req, res){
@@ -224,3 +227,4 @@ app.listen(port, function(){
     // download_manifest(manifest_url);
     // yaml_to_json();
 });
+
