@@ -86,7 +86,16 @@ function download_yml(yml_url, build_num){
         filePath.on('finish',() => {
             filePath.close();
             console.log('yml Download Completed');
+            if(res.statusCode === 404){
+                fs.rmSync(`build_ymls/${build_num}`, { recursive: true, force: true });
+                console.log(build_num, ' deleted');
+            }
         })
+        
+
+        // if(err){
+        //     console.log(`${build_num} yml download failed`);
+        // }
     })
 }
 function yml_exists(build_num){
@@ -164,10 +173,11 @@ let fetchh = async (res) => {
                         console.log(err);
                     }
                     else{
-                        console.log(`Directory ${build_nums[i].build_num} created`)
+                        console.log(`Directory ${build_nums[i].build_num} created`);
+                        download_yml(create_yml_url(build_nums[i].build_num), build_nums[i].build_num);
                     }
                 });
-                download_yml(create_yml_url(build_nums[i].build_num), build_nums[i].build_num);
+                
 
             }
             build_nums[i].result = build_json.result;
