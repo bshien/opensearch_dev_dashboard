@@ -16,7 +16,7 @@
             <% for(let i = 0; i < yml_json.components.length; i++){ %>
             <tr>
                 <td><%= yml_json.components[i].name %></td>
-                <td><a href="<%= yml_json.components[i].repository.slice(0, -4) + '/commit/' + yml_json.components[i].ref%>">Github</a></td>
+                <td><a href="<%= yml_json.components[i].repository.slice(0, -4) + '/commit/' + yml_json.components[i].ref%>"><%= yml_json.components[i].ref %></a></td>
             </tr>
             <% } %>
             <% } %>

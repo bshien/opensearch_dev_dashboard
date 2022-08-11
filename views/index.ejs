@@ -4,10 +4,12 @@
         
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8" />
         <link rel="stylesheet" type="text/css" href="css/styles.css">
+        
     </head>
 
     <body>
         <h1>OpenSearch Builds</h1>
+        <h2><a href="Perf">Perf test link</a></h2>
         <table>
             <tr>
                 <th>Number</th>
@@ -26,7 +28,7 @@
             <tr class="border">
                 <td><a href="https://build.ci.opensearch.org/job/distribution-build-opensearch/<%= builds_array[i].build_num %>"><%= builds_array[i].build_num %></a></td>
                 <td><%= builds_array[i].running %></td>
-                <td><%= builds_array[i].result %></td>
+                <td class="result"><%= builds_array[i].result %></td>
                 <td><%= builds_array[i].version %></td>
                 <td><%= builds_array[i].start_time %></td>
                 <td><%= builds_array[i].duration %></td>
@@ -52,6 +54,6 @@
             <% } %>
         </table>
         
-        
+        <script src="../js/script.js"></script>
     </body>
 </html>

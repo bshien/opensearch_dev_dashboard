@@ -228,6 +228,28 @@ app.get('/CVE/:build_number', function(req, res){
 })
 
 
+async function dl_perf(res){
+    let builds_url = 'https://ci.opensearch.org/ci/dbc/perf-test/1.2.4/762/linux/x64/test-results/perf-test/without-security/2caaa49a-3af7-438e-a090-7cf39f59a599.json';
+    let jobs = await fetch(builds_url);
+
+    let jobs_json = await jobs.json();
+
+    console.log(jobs_json);
+
+    res.render('Perf', {json: jobs_json});
+    
+}
+app.get('/Perf', function(req, res){
+    // change_manifest_url(req.params.build_number, req.params.version);
+    // download_manifest(manifest_url, res);
+    //const yml_json = yaml.load(fs.readFileSync(`test_yml/test.yml`, 'utf8'));
+
+    dl_perf(res)
+    
+    
+})
+
+
 app.listen(port, function(){
     console.log(`Example app listening on ${port}!`);
     // const file = 'files';
