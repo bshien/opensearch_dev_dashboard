@@ -32,12 +32,12 @@
                 <td><%= builds_array[i].version %></td>
                 <td><%= builds_array[i].start_time %></td>
                 <td><%= builds_array[i].duration %></td>
-                <% if(builds_array[i].running === "Done") { %>
+                <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
                 <td><a href="commits/<%= builds_array[i].build_num %>">Commits</a></td>
                 <% } else { %>
                 <td></td>
                 <% } %>
-                <% if(builds_array[i].running === "Done") { %>
+                <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
                     <td><a href="CVE/<%= builds_array[i].build_num %>">CVE</a></td>
                 <% } else { %>
                     <td></td>

@@ -87,8 +87,16 @@ function download_yml(yml_url, build_num){
             filePath.close();
             console.log('yml Download Completed');
             if(res.statusCode === 404){
-                fs.rmSync(`build_ymls/${build_num}`, { recursive: true, force: true });
-                console.log(build_num, ' deleted');
+                // fs.rmSync(`build_ymls/${build_num}`, { recursive: true, force: true });
+                // console.log(build_num, ' deleted');
+                fs.mkdir('build_ymls/' + build_num + '/ABORTED', (err)=>{
+                    if(err){
+                        console.log(err);
+                    }
+                    else{
+                        console.log(`Directory ${build_num}/ABORTED created`);
+                    }
+                });
             }
         })
         
@@ -151,12 +159,16 @@ let fetchh = async (res) => {
     for(let i = 0; i < NUM_OF_BUILDS; i++){
         if(yml_exists(build_nums[i].build_num)){
             build_nums[i].running = 'Done';
-            try {
-                const yml_json = yaml.load(fs.readFileSync(`build_ymls/${build_nums[i].build_num}/commits.yml`, 'utf8'));
-                //console.log(yml_json);
-                build_nums[i].version = yml_json.build.version;
-              } catch (e) {
-                console.log(e);
+            if(fs.existsSync(`build_ymls/${build_nums[i].build_num}/ABORTED`)){
+                build_nums[i].result = 'ABORTED';
+            } else {
+                try {
+                    const yml_json = yaml.load(fs.readFileSync(`build_ymls/${build_nums[i].build_num}/commits.yml`, 'utf8'));
+                    //console.log(yml_json);
+                    build_nums[i].version = yml_json.build.version;
+                } catch (e) {
+                    console.log(e);
+                }
             }
             
 
