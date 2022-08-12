@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    </head>
+
+    <body>
+        <h1>CVE</h1>
+        <table>
+            <tr>
+                <th>Plugin</th>
+                <th>CVE Link</th>
+            </tr>
+            <% if(yml_json.components){ %>
+            <% for(let i = 0; i < yml_json.components.length; i++){ %>
+            <tr>
+                <td><%= yml_json.components[i].name %></td>
+                <td><a href="<%= `https://advisories.aws.barahmand.com/vulnerabilities/${change_formatting(yml_json.components[i].name)}`%>">CVE</a></td>
+            </tr>
+            <% } %>
+            <% } %>
+        </table>
+    </body>
+</html>

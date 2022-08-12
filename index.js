@@ -239,6 +239,31 @@ app.get('/CVE/:build_number', function(req, res){
     
 })
 
+app.get('/integ/:build_number', function(req, res){
+    // change_manifest_url(req.params.build_number, req.params.version);
+    // download_manifest(manifest_url, res);
+    https.get('https://build.ci.opensearch.org/job/integ-test/2670/flowGraphTable/',(res) => {
+        var body = "";
+        res.on('readable', function() {
+            body += res.read();
+        });
+        res.on('end', function() {
+            //console.log(body);
+            console.log("OK"); 
+
+            // const re = new RegExp('<td>Error running integtest for component \w*</td>', 'g');
+            const re = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
+
+            const myArray = [...body.matchAll(re)];
+            //console.log(myArray);
+            myArray.forEach(s => console.log(s[1]));
+        });
+    });
+
+    const yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    res.render('integ', {yml_json: yml_json, change_formatting: change_formatting});
+    
+})
 
 async function dl_perf(res){
     let builds_url = 'https://ci.opensearch.org/ci/dbc/perf-test/1.2.4/762/linux/x64/test-results/perf-test/without-security/2caaa49a-3af7-438e-a090-7cf39f59a599.json';
