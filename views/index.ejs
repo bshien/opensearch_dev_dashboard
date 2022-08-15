@@ -40,12 +40,12 @@
                 <td></td>
                 <% } %>
                 <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
-                <td><a href="commits/<%= builds_array[i].build_num %>">Commits</a></td>
+                <td><a href="commits/<%= builds_array[i].build_num %>-nd">Commits</a></td>
                 <% } else { %>
                 <td></td>
                 <% } %>
                 <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
-                    <td><a href="CVE/<%= builds_array[i].build_num %>">CVE</a></td>
+                    <td><a href="CVE/<%= builds_array[i].build_num %>-nd">CVE</a></td>
                 <% } else { %>
                     <td></td>
                 <% } %>

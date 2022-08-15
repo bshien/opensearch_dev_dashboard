@@ -238,37 +238,35 @@ app.get('/dashboards', function(req, res){
     fetchh(res, 'dashboards');
 })
 
-app.get('/commits/:build_number', function(req, res){
+app.get('/commits/:build_number-:dashboard', function(req, res){
     // change_manifest_url(req.params.build_number, req.params.version);
     // download_manifest(manifest_url, res);
-    const yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    let yml_json = null;
+    if(req.params.dashboard === 'd'){
+        yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    }
+    else{
+        yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    }
     res.render('commits', {yml_json: yml_json});
     
 })
 
-app.get('/dashboards/commits/:build_number', function(req, res){
+app.get('/CVE/:build_number-:dashboard', function(req, res){
     // change_manifest_url(req.params.build_number, req.params.version);
     // download_manifest(manifest_url, res);
-    const yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
-    res.render('commits', {yml_json: yml_json});
-    
-})
-
-app.get('/CVE/:build_number', function(req, res){
-    // change_manifest_url(req.params.build_number, req.params.version);
-    // download_manifest(manifest_url, res);
-    const yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    //const yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    let yml_json = null;
+    if(req.params.dashboard === 'd'){
+        yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    }
+    else{
+        yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    }
     res.render('CVE', {yml_json: yml_json, change_formatting: change_formatting});
     
 })
 
-app.get('/dashboards/CVE/:build_number', function(req, res){
-    // change_manifest_url(req.params.build_number, req.params.version);
-    // download_manifest(manifest_url, res);
-    const yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
-    res.render('CVE', {yml_json: yml_json, change_formatting: change_formatting});
-    
-})
 
 app.get('/integ/:build_number', function(req, res){
     // change_manifest_url(req.params.build_number, req.params.version);

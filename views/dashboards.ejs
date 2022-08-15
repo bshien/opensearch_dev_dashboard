@@ -9,7 +9,7 @@
 
     <body>
         <h1>OpenSearch Dashboards Builds</h1>
-        <h2><a href="index">OpenSearch link</a></h2>
+        <h2><a href="/">OpenSearch link</a></h2>
         <h2><a href="perf">Perf test link</a></h2>
         <table>
             <tr>
@@ -40,12 +40,12 @@
                 <td></td>
                 <% } %>
                 <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
-                <td><a href="dashboards/commits/<%= builds_array[i].build_num %>">Commits</a></td>
+                <td><a href="commits/<%= builds_array[i].build_num %>-d">Commits</a></td>
                 <% } else { %>
                 <td></td>
                 <% } %>
                 <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
-                    <td><a href="dashboards/CVE/<%= builds_array[i].build_num %>">CVE</a></td>
+                    <td><a href="CVE/<%= builds_array[i].build_num %>-d">CVE</a></td>
                 <% } else { %>
                     <td></td>
                 <% } %>

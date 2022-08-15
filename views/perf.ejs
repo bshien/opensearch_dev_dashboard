@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    </head>
+
+    <body>
+        <h1>Performance Tests</h1>
+        <h2><a href="/">OpenSearch link</a></h2>
+        <h2><a href="dashboards">OpenSearch Dashboards</a></h2>
+        <table>
+            <tr>
+                <th>Architecture</th>
+                <th>Security-Enabled?</th>
+                <th>Instance Type</th>
+                <th>Workload Details</th>
+                <th>Index Latency(ms) p50</th>
+                <th>Index Latency(ms) p90</th>
+                <th>Index Latency(ms) p99</th>
+                <th>Index Latency(ms) p100</th>
+                <th>Index Throughput(docs/s) p0</th>
+                <th>Index Latency(docs/s) p50</th>
+                <th>Index Latency(docs/s) p100</th>
+                <th>Index Throughput (docs/s) Ops Count</th>
+                <th>Index Operation Counts Op Error Count</th>
+                <th>Index Operation Counts Op Error Rate</th>
+                <th>Query Latency (ms) p50</th>
+                <th>Query Latency (ms) p90</th>
+                <th>Query Latency (ms) p99</th>
+                <th>Query Latency (ms) p100</th>
+                <th>Query Throughput (docs/s) p0</th>
+                <th>Query Throughput (docs/s) p50</th>
+                <th>Query Throughput (docs/s) p100</th>
+                <th>Query Operation Counts Ops Count</th>
+                <th>Query Operation Counts Op Error Count</th>
+                <th>Query Operation Counts Op Error Rate</th>
+                <th>CPU (%) p50</th>
+                <th>CPU (%) p90</th>
+                <th>CPU (%) p99</th>
+                <th>CPU (%) p100</th>
+                <th>Memory (%) p50</th>
+                <th>Memory (%) p90</th>
+                <th>Memory (%) p99</th>
+                <th>Memory (%) p100</th>
+                <th>GC (ms) Old</th>
+                <th>GC (ms) Young</th>
+            </tr>
+            
+            <tr>
+                <td><%=  %></td>
+                <td><%=  %></td>
+                <td><%= json.systemUnderTest.dataNodeInstanceType %></td>
+                <td><%= `${json.workloadConfig.dataset} / ${json.workloadConfig.warmupIterations} warmupIterations / ${json.workloadConfig.testIterations} testIterations` %></td>
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p50 %></td>
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p90 %></td>
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p99 %></td>   
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p100 %></td>
+                <td><%= json.testResults.operationsSummary.index.requestsPerSecond.p0 %></td>
+                <td><%= json.testResults.operationsSummary.index.requestsPerSecond.p50 %></td>
+                <td><%= json.testResults.operationsSummary.index.requestsPerSecond.p100 %></td>
+                <td><%= json.testResults.operationsSummary.index.opCount %></td> 
+                <td><%= json.testResults.operationsSummary.index.opErrorCount %></td>
+                <td><%= json.testResults.operationsSummary.index.opErrorRate %></td>  
+                <td><%= json.testResults.operationsSummary.query.latencyMillis.p50 %></td>
+                <td><%= json.testResults.operationsSummary.query.latencyMillis.p90 %></td>
+                <td><%= json.testResults.operationsSummary.query.latencyMillis.p99 %></td>   
+                <td><%= json.testResults.operationsSummary.query.latencyMillis.p100 %></td> 
+                <td><%= json.testResults.operationsSummary.query.requestsPerSecond.p0 %></td>
+                <td><%= json.testResults.operationsSummary.query.requestsPerSecond.p50 %></td>
+                <td><%= json.testResults.operationsSummary.query.requestsPerSecond.p100 %></td>
+                <td><%= json.testResults.operationsSummary.query.opCount %></td> 
+                <td><%= json.testResults.operationsSummary.query.opErrorCount %></td>
+                <td><%= json.testResults.operationsSummary.query.opErrorRate %></td>
+                <td><%= json.testResults.cpuStats.overall.p50 %></td> 
+                <td><%= json.testResults.cpuStats.overall.p90 %></td> 
+                <td><%= json.testResults.cpuStats.overall.p99 %></td> 
+                <td><%= json.testResults.cpuStats.overall.p100 %></td>
+                <td><%= json.testResults.memoryStats.overall.p50 %></td> 
+                <td><%= json.testResults.memoryStats.overall.p90 %></td> 
+                <td><%= json.testResults.memoryStats.overall.p99 %></td> 
+                <td><%= json.testResults.memoryStats.overall.p100 %></td>
+                <td><%= json.testResults.garbageCollection.overall.oldGCTimeMillis %></td>
+                <td><%= json.testResults.garbageCollection.overall.youngGCTimeMillis %></td>            
+                                         
+            </tr>
+        </table>
+    </body>
+</html>
