@@ -8,10 +8,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const NUM_OF_BUILDS = 30;
 const build_num_set = {};
-
-
-
-let manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/2.2.0/5821/linux/x64/tar/builds/opensearch/manifest.yml';
+const dashboard_build_num_set = {};
 
 // version in the format of: x.x.x
 // build number in the format of: xxxx
@@ -19,13 +16,13 @@ function change_manifest_url(build_num, version){
     manifest_url = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/' + version + '/' + build_num + '/linux/x64/tar/builds/opensearch/manifest.yml';
 }
 
-function create_artifact_url(build_num, version, architecture, type){
-    return 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/' + version + '/' + build_num + '/linux/' + architecture + '/' + type
+function create_artifact_url(build_num, version, architecture, type, dashboards){
+    return 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch' + dashboards +'/' + version + '/' + build_num + '/linux/' + architecture + '/' + type
     + '/dist/opensearch/opensearch-' + version + '-linux-' + architecture + '.' + type + (type === 'tar' ? '.gz' : '');
 }
 
-function create_yml_url(build_num){
-    return 'https://build.ci.opensearch.org/job/distribution-build-opensearch/' + build_num + '/artifact/commits.yml';
+function create_yml_url(build_num, dashboards){
+    return 'https://build.ci.opensearch.org/job/distribution-build-opensearch' + dashboards + '/' + build_num + '/artifact/commits.yml';
 }
 
 
@@ -43,17 +40,22 @@ function change_formatting(str){
     return splitStr.join(' ') + ': OpenSearch Plugin'; 
 }
 
-function check_delete(build_nums){
-    fs.readdir('build_ymls', (err, files) => {
+function check_delete(build_nums, folder_name, page){
+    let set = build_num_set;
+    if(page === 'dashboards'){
+        set = dashboard_build_num_set;
+    }
+    fs.readdir(folder_name, (err, files) => {
         files.forEach(file => {
             console.log(file, ' exists');
-            if(!(file in build_num_set)){
-                fs.rmSync(`build_ymls/${file}`, { recursive: true, force: true });
+            if(!(file in set)){
+                fs.rmSync(`${folder_name}/${file}`, { recursive: true, force: true });
                 console.log(file, ' deleted');
 
             }
         });
     });
+
     // for(let i = 0; i < NUM_OF_BUILDS; i++){
         
     // }
@@ -78,9 +80,9 @@ function download_manifest(manifest_url, old_res){
     })
 }
 
-function download_yml(yml_url, build_num){
+function download_yml(yml_url, build_num, folder_name){
     https.get(yml_url,(res) => {
-        const path = `${__dirname}/build_ymls/${build_num}/commits.yml`; 
+        let path = `${__dirname}/${folder_name}/${build_num}/commits.yml`; 
         const filePath = fs.createWriteStream(path, {flags: 'w+'});
         res.pipe(filePath);
         filePath.on('finish',() => {
@@ -89,7 +91,7 @@ function download_yml(yml_url, build_num){
             if(res.statusCode === 404){
                 // fs.rmSync(`build_ymls/${build_num}`, { recursive: true, force: true });
                 // console.log(build_num, ' deleted');
-                fs.mkdir('build_ymls/' + build_num + '/ABORTED', (err)=>{
+                fs.mkdir(folder_name + '/' + build_num + '/ABORTED', (err)=>{
                     if(err){
                         console.log(err);
                     }
@@ -106,8 +108,12 @@ function download_yml(yml_url, build_num){
         // }
     })
 }
-function yml_exists(build_num){
+function yml_exists(build_num, page){
+    if(page === 'dashboards'){
+        return fs.existsSync('dashboard_build_ymls/' + build_num.toString());
+    }
     return fs.existsSync('build_ymls/' + build_num.toString());
+    
     
 }
 function convert_build_duration(ms){
@@ -135,9 +141,15 @@ function yaml_to_json(){
 
 let build_nums = []
 
-let fetchh = async (res) => {
-
+let fetchh = async (res, page) => {
     let builds_url = 'https://build.ci.opensearch.org/job/distribution-build-opensearch';
+    let folder_name = 'build_ymls';
+    if(page === 'dashboards'){
+        builds_url = 'https://build.ci.opensearch.org/job/distribution-build-opensearch-dashboards/';
+        folder_name = 'dashboard_build_ymls';
+
+    }
+    let url_add = (page === 'dashboards') ? '-dashboards' : '';
     //let jobs = await fetch('https://build.ci.opensearch.org/job/distribution-build-opensearch/api/json?tree=allBuilds[number,url]');
     let jobs = await fetch(builds_url + '/api/json');
 
@@ -145,25 +157,24 @@ let fetchh = async (res) => {
     build_nums = []
     for(let i = 0; i < NUM_OF_BUILDS; i++){
         build_nums.push({build_num: jobs_json.builds[i].number});
-        build_num_set[jobs_json.builds[i].number.toString()] = null;
+        if(page === 'index'){
+            build_num_set[jobs_json.builds[i].number.toString()] = null;
+        }
+        else if(page ==='dashboards'){
+            dashboard_build_num_set[jobs_json.builds[i].number.toString()] = null;
+        }
     }
-    console.log(build_nums);
-    // jobs_json.builds.forEach(build => {
-    //     build_nums.push({build_num: build.number});
-    //     
-    //     build_num_set[build.number.toString()] = null;
-    // });
-    // jobs_json.allBuilds.forEach(build => build_nums.push(build.number));
 
+    console.log(build_nums);
 
     for(let i = 0; i < NUM_OF_BUILDS; i++){
-        if(yml_exists(build_nums[i].build_num)){
+        if(yml_exists(build_nums[i].build_num, page)){
             build_nums[i].running = 'Done';
-            if(fs.existsSync(`build_ymls/${build_nums[i].build_num}/ABORTED`)){
+            if(fs.existsSync(`${folder_name}/${build_nums[i].build_num}/ABORTED`)){
                 build_nums[i].result = 'ABORTED';
             } else {
                 try {
-                    const yml_json = yaml.load(fs.readFileSync(`build_ymls/${build_nums[i].build_num}/commits.yml`, 'utf8'));
+                    const yml_json = yaml.load(fs.readFileSync(`${folder_name}/${build_nums[i].build_num}/commits.yml`, 'utf8'));
                     //console.log(yml_json);
                     build_nums[i].version = yml_json.build.version;
                 } catch (e) {
@@ -180,13 +191,13 @@ let fetchh = async (res) => {
             let build_json = await specific_build.json();
             //console.log(build_json);
             if(!build_json.building){
-                fs.mkdir('build_ymls/' + build_nums[i].build_num.toString(), (err)=>{
+                fs.mkdir(`${folder_name}/` + build_nums[i].build_num.toString(), (err)=>{
                     if(err){
                         console.log(err);
                     }
                     else{
                         console.log(`Directory ${build_nums[i].build_num} created`);
-                        download_yml(create_yml_url(build_nums[i].build_num), build_nums[i].build_num);
+                        download_yml(create_yml_url(build_nums[i].build_num, url_add), build_nums[i].build_num, folder_name);
                     }
                 });
                 
@@ -205,14 +216,14 @@ let fetchh = async (res) => {
             build_nums[i].duration = convert_build_duration(build_json.duration);
             
         }
-        build_nums[i].x64_tar = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'x64', 'tar');
-        build_nums[i].arm64_tar = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'arm64', 'tar');
-        build_nums[i].x64_rpm = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'x64', 'rpm');
-        build_nums[i].arm64_rpm = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'arm64', 'rpm');
+        build_nums[i].x64_tar = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'x64', 'tar', url_add);
+        build_nums[i].arm64_tar = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'arm64', 'tar', url_add);
+        build_nums[i].x64_rpm = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'x64', 'rpm', url_add);
+        build_nums[i].arm64_rpm = create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'arm64', 'rpm', url_add);
     }
     //console.log(build_nums);
-    check_delete(build_nums);
-    res.render('index', {builds_array: build_nums, NUM_OF_BUILDS: NUM_OF_BUILDS}); 
+    check_delete(build_nums, folder_name, page);
+    res.render(page, {builds_array: build_nums, NUM_OF_BUILDS: NUM_OF_BUILDS}); 
 }
 
 app.use(express.static(__dirname + '/public'));
@@ -220,8 +231,12 @@ app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');  
 
 app.get('/', function(req, res){
-    fetchh(res);
+    fetchh(res, 'index');
 });
+
+app.get('/dashboards', function(req, res){
+    fetchh(res, 'dashboards');
+})
 
 app.get('/commits/:build_number', function(req, res){
     // change_manifest_url(req.params.build_number, req.params.version);
@@ -231,10 +246,26 @@ app.get('/commits/:build_number', function(req, res){
     
 })
 
+app.get('/dashboards/commits/:build_number', function(req, res){
+    // change_manifest_url(req.params.build_number, req.params.version);
+    // download_manifest(manifest_url, res);
+    const yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    res.render('commits', {yml_json: yml_json});
+    
+})
+
 app.get('/CVE/:build_number', function(req, res){
     // change_manifest_url(req.params.build_number, req.params.version);
     // download_manifest(manifest_url, res);
     const yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+    res.render('CVE', {yml_json: yml_json, change_formatting: change_formatting});
+    
+})
+
+app.get('/dashboards/CVE/:build_number', function(req, res){
+    // change_manifest_url(req.params.build_number, req.params.version);
+    // download_manifest(manifest_url, res);
+    const yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
     res.render('CVE', {yml_json: yml_json, change_formatting: change_formatting});
     
 })
@@ -305,10 +336,10 @@ async function dl_perf(res){
 
     console.log(jobs_json);
 
-    res.render('Perf', {json: jobs_json});
+    res.render('perf', {json: jobs_json});
     
 }
-app.get('/Perf', function(req, res){
+app.get('/perf', function(req, res){
     // change_manifest_url(req.params.build_number, req.params.version);
     // download_manifest(manifest_url, res);
     //const yml_json = yaml.load(fs.readFileSync(`test_yml/test.yml`, 'utf8'));
