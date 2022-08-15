@@ -242,26 +242,58 @@ app.get('/CVE/:build_number', function(req, res){
 app.get('/integ/:build_number', function(req, res){
     // change_manifest_url(req.params.build_number, req.params.version);
     // download_manifest(manifest_url, res);
-    https.get('https://build.ci.opensearch.org/job/integ-test/2670/flowGraphTable/',(res) => {
+    old_res = res;
+
+    https.get('https://build.ci.opensearch.org/job/integ-test/2683/flowGraphTable/',(res) => {
         var body = "";
         res.on('readable', function() {
             body += res.read();
         });
         res.on('end', function() {
             //console.log(body);
-            console.log("OK"); 
+            //console.log("OK"); 
 
             // const re = new RegExp('<td>Error running integtest for component \w*</td>', 'g');
-            const re = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
+            const re1 = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
+            //const re2 = new RegExp('<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>', 'g');
+            const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
+            const re3 = new RegExp('<td>Completed running integtest for component ([a-zA-Z-]*)</td>', 'g');
 
-            const myArray = [...body.matchAll(re)];
-            //console.log(myArray);
-            myArray.forEach(s => console.log(s[1]));
+            const compList = body.match(re2)[1].split(', ');
+            let compObjs = [];
+            compList.forEach(comp => {
+                compObjs.push({name: comp})
+            });
+            //console.log(compObjs);
+            compErrors_array = [];
+            compFins_array = [];
+            const compError = [...body.matchAll(re1)];
+            //console.log(compError);
+            // compError.forEach(s => console.log(s[1]));
+            compError.forEach(s => compErrors_array.push(s[1]));
+
+            const compFin = [...body.matchAll(re3)];
+            //console.log(compFin);
+            //compFin.forEach(s => console.log(s[1]));
+            compFin.forEach(s => compFins_array.push(s[1]));
+
+            compObjs.forEach(comp =>{
+                if(compFins_array.includes(comp.name)){
+                    comp.result = 'SUCCESS';
+                    if(compErrors_array.includes(comp.name)){
+                        comp.result = 'FAILURE';
+                    }              
+                }
+                else{
+                    comp.result = "DNF";
+                }
+            });
+
+            old_res.render('integ', {compObjs: compObjs});
         });
     });
 
-    const yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
-    res.render('integ', {yml_json: yml_json, change_formatting: change_formatting});
+    
     
 })
 
