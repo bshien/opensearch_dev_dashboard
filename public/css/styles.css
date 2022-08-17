@@ -83,3 +83,6 @@ a:hover{
     color: hotpink
 }
 
+:visited{
+    color: rgb(170, 0, 170)
+}
