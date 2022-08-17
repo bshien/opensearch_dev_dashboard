@@ -11,14 +11,17 @@
             <tr>
                 <th>Plugin</th>
                 <th>Result</th>
+                <th>Logs</th>
+
             </tr>
             <% for(let i = 0; i < compObjs.length; i++){ %>
             <tr>
                 <td><%= compObjs[i].name %></td>
                 <td class="result"><%= compObjs[i].result %></td>
+                <td class="result"><a href="<%= compObjs[i].log %>">x64/with-security</a></td>
             </tr>
             <% } %>
         </table>
-        <script src="../js/script.js"></script>
+        <script src="../js/result_color.js"></script>
     </body>
 </html>

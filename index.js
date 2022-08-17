@@ -268,10 +268,12 @@ app.get('/CVE/:build_number-:dashboard', function(req, res){
 })
 
 
-app.get('/integ/:build_number', function(req, res){
+app.get('/integ/:build_number-:version', function(req, res){
     // change_manifest_url(req.params.build_number, req.params.version);
     // download_manifest(manifest_url, res);
     old_res = res;
+
+
 
     https.get('https://build.ci.opensearch.org/job/integ-test/2683/flowGraphTable/',(res) => {
         var body = "";
@@ -307,6 +309,7 @@ app.get('/integ/:build_number', function(req, res){
             compFin.forEach(s => compFins_array.push(s[1]));
 
             compObjs.forEach(comp =>{
+                comp.log = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/x64/tar/test-results/1/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
                 if(compFins_array.includes(comp.name)){
                     comp.result = 'SUCCESS';
                     if(compErrors_array.includes(comp.name)){

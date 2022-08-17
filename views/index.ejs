@@ -35,7 +35,7 @@
                 <td><%= builds_array[i].start_time %></td>
                 <td><%= builds_array[i].duration %></td>
                 <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
-                <td><a href="integ/<%= builds_array[i].build_num %>">Integ</a></td>
+                <td><a href="integ/<%= builds_array[i].build_num %>-<%= builds_array[i].version %>">Integ</a></td>
                 <% } else { %>
                 <td></td>
                 <% } %>
@@ -61,6 +61,6 @@
             <% } %>
         </table>
         
-        <script src="../js/script.js"></script>
+        <script src="../js/result_color.js"></script>
     </body>
 </html>

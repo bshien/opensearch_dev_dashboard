@@ -9,8 +9,9 @@
         <h1>Performance Tests</h1>
         <h2><a href="/">OpenSearch link</a></h2>
         <h2><a href="dashboards">OpenSearch Dashboards</a></h2>
-        <table>
+        <table id="myTable">
             <tr>
+                <th>Compare</th>
                 <th>Architecture</th>
                 <th>Security-Enabled?</th>
                 <th>Instance Type</th>
@@ -46,9 +47,48 @@
                 <th>GC (ms) Old</th>
                 <th>GC (ms) Young</th>
             </tr>
-            
             <tr>
+                <td><button id="btn-<%= 0 %>">Compare</button></td>
                 <td><%=  %></td>
+                <td><%=  %></td>
+                <td><%= json.systemUnderTest.dataNodeInstanceType %></td>
+                <td><%= `${json.workloadConfig.dataset} / ${json.workloadConfig.warmupIterations} warmupIterations / ${json.workloadConfig.testIterations} testIterations` %></td>
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p50 + 100 %></td>
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p90 %></td>
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p99 %></td>   
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p100 %></td>
+                <td><%= json.testResults.operationsSummary.index.requestsPerSecond.p0 %></td>
+                <td><%= json.testResults.operationsSummary.index.requestsPerSecond.p50 %></td>
+                <td><%= json.testResults.operationsSummary.index.requestsPerSecond.p100 %></td>
+                <td><%= json.testResults.operationsSummary.index.opCount %></td> 
+                <td><%= json.testResults.operationsSummary.index.opErrorCount %></td>
+                <td><%= json.testResults.operationsSummary.index.opErrorRate %></td>  
+                <td><%= json.testResults.operationsSummary.query.latencyMillis.p50 %></td>
+                <td><%= json.testResults.operationsSummary.query.latencyMillis.p90 %></td>
+                <td><%= json.testResults.operationsSummary.query.latencyMillis.p99 %></td>   
+                <td><%= json.testResults.operationsSummary.query.latencyMillis.p100 %></td> 
+                <td><%= json.testResults.operationsSummary.query.requestsPerSecond.p0 %></td>
+                <td><%= json.testResults.operationsSummary.query.requestsPerSecond.p50 %></td>
+                <td><%= json.testResults.operationsSummary.query.requestsPerSecond.p100 %></td>
+                <td><%= json.testResults.operationsSummary.query.opCount %></td> 
+                <td><%= json.testResults.operationsSummary.query.opErrorCount %></td>
+                <td><%= json.testResults.operationsSummary.query.opErrorRate %></td>
+                <td><%= json.testResults.cpuStats.overall.p50 %></td> 
+                <td><%= json.testResults.cpuStats.overall.p90 %></td> 
+                <td><%= json.testResults.cpuStats.overall.p99 %></td> 
+                <td><%= json.testResults.cpuStats.overall.p100 %></td>
+                <td><%= json.testResults.memoryStats.overall.p50 %></td> 
+                <td><%= json.testResults.memoryStats.overall.p90 %></td> 
+                <td><%= json.testResults.memoryStats.overall.p99 %></td> 
+                <td><%= json.testResults.memoryStats.overall.p100 %></td>
+                <td><%= json.testResults.garbageCollection.overall.oldGCTimeMillis %></td>
+                <td><%= json.testResults.garbageCollection.overall.youngGCTimeMillis %></td>            
+                                         
+            </tr>
+            <% for(let i = 1; i < 5; i++){ %>
+            <tr>
+                <td><button id="btn-<%= i %>">Compare</button></td>
+                <td><%= i %></td>
                 <td><%=  %></td>
                 <td><%= json.systemUnderTest.dataNodeInstanceType %></td>
                 <td><%= `${json.workloadConfig.dataset} / ${json.workloadConfig.warmupIterations} warmupIterations / ${json.workloadConfig.testIterations} testIterations` %></td>
@@ -84,6 +124,8 @@
                 <td><%= json.testResults.garbageCollection.overall.youngGCTimeMillis %></td>            
                                          
             </tr>
+            <% } %>
         </table>
+        <script src="../js/compare.js"></script>
     </body>
 </html>
