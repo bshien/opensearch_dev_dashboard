@@ -117,3 +117,103 @@ async function dl_perf(res){
 }
 
 exports.dl_perf = dl_perf;
+
+function html_parse(req, old_res){
+    https.get('https://build.ci.opensearch.org/job/integ-test/2683/flowGraphTable/',(res) => {
+        let body = "";
+        res.on('readable', function() {
+            body += res.read();
+        });
+        res.on('end', function() {
+            //console.log(body);
+            //console.log("OK"); 
+
+            // const re = new RegExp('<td>Error running integtest for component \w*</td>', 'g');
+            const re1 = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
+            //const re2 = new RegExp('<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>', 'g');
+            const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
+            const re3 = new RegExp('<td>Completed running integtest for component ([a-zA-Z-]*)</td>', 'g');
+
+            const compList = body.match(re2)[1].split(', ');
+            let compObjs = [];
+            compList.forEach(comp => {
+                compObjs.push({name: comp})
+            });
+            //console.log(compObjs);
+            compErrors_array = [];
+            compFins_array = [];
+            const compError = [...body.matchAll(re1)];
+            //console.log(compError);
+            // compError.forEach(s => console.log(s[1]));
+            compError.forEach(s => compErrors_array.push(s[1]));
+
+            const compFin = [...body.matchAll(re3)];
+            //console.log(compFin);
+            //compFin.forEach(s => console.log(s[1]));
+            compFin.forEach(s => compFins_array.push(s[1]));
+
+            compObjs.forEach(comp =>{
+                comp.log = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/x64/tar/test-results/1/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
+                if(compFins_array.includes(comp.name)){
+                    comp.result = 'SUCCESS';
+                    if(compErrors_array.includes(comp.name)){
+                        comp.result = 'FAILURE';
+                    }              
+                }
+                else{
+                    comp.result = "DNF";
+                }
+            });
+
+            old_res.render('integ', {compObjs: compObjs});
+        });
+    });
+}
+
+exports.html_parse = html_parse;
+
+function dashboard_parse(req, old_res){
+    https.get('https://ci.opensearch.org/ci/dbc/integ-test-opensearch-dashboards/2.1.0/4011/linux/x64/tar/test-results/1/integ-test/functionalTestDashboards/without-security/test-results/stdout.txt',(res) => {
+        let body = "";
+        res.on('readable', function() {
+            body += res.read();
+        });
+        res.on('end', function() {
+            // console.log(body);
+            // console.log("OK"); 
+            
+
+            // const re = new RegExp('<td>Error running integtest for component \w*</td>', 'g');
+            //const re1 = /\u2714  plugins/[-a-zA-Z ]*\//g;
+            const re1 = /\u2714  plugins\/([-a-zA-Z ]*)\//g;
+            const re2 = /\u2716  plugins\/([-a-zA-Z ]*)\//g;
+            // const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
+            // const re3 = new RegExp('<td>Completed running integtest for component ([a-zA-Z-]*)</td>', 'g');
+
+            let compObjs = [];
+            let plugin_status = {};
+            let passed_plugins_obj = {}
+            let failed_plugins_obj = {}
+            const comp_match_success = [...body.matchAll(re1)];
+            comp_match_success.forEach(plugin => {
+                //compObjs.push({name: plugin[1], result: 'SUCCESS'});
+                plugin_status[plugin[1]] = 'SUCCESS';
+            });
+
+            const comp_match_failed = [...body.matchAll(re2)];
+            comp_match_failed.forEach(plugin => {
+                plugin_status[plugin[1]] = 'FAILURE';       
+            });
+
+            // console.log(comp_match_failed);
+
+            let keys = Object.keys(plugin_status);
+            keys.forEach(key => compObjs.push({name: key, result: plugin_status[key]}));
+            
+
+            old_res.render('integ', {compObjs: compObjs});
+        });
+    });
+}
+
+exports.dashboard_parse = dashboard_parse;
