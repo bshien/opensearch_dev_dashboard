@@ -49,14 +49,14 @@
             </tr>
             <tr>
                 <td><button id="btn-<%= 0 %>">Compare</button></td>
-                <td><%=  %></td>
-                <td><%=  %></td>
+                <td> x64 </td>
+                <td> With Security </td>
                 <td><%= json.systemUnderTest.dataNodeInstanceType %></td>
                 <td><%= `${json.workloadConfig.dataset} / ${json.workloadConfig.warmupIterations} warmupIterations / ${json.workloadConfig.testIterations} testIterations` %></td>
                 <td><%= json.testResults.operationsSummary.index.latencyMillis.p50 + 100 %></td>
-                <td><%= json.testResults.operationsSummary.index.latencyMillis.p90 %></td>
-                <td><%= json.testResults.operationsSummary.index.latencyMillis.p99 %></td>   
-                <td><%= json.testResults.operationsSummary.index.latencyMillis.p100 %></td>
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p90 -150%></td>
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p99 + 22%></td>   
+                <td><%= json.testResults.operationsSummary.index.latencyMillis.p100 -438%></td>
                 <td><%= json.testResults.operationsSummary.index.requestsPerSecond.p0 %></td>
                 <td><%= json.testResults.operationsSummary.index.requestsPerSecond.p50 %></td>
                 <td><%= json.testResults.operationsSummary.index.requestsPerSecond.p100 %></td>
@@ -88,8 +88,8 @@
             <% for(let i = 1; i < 5; i++){ %>
             <tr>
                 <td><button id="btn-<%= i %>">Compare</button></td>
-                <td><%= i %></td>
-                <td><%=  %></td>
+                <td>x64</td>
+                <td>With Security</td>
                 <td><%= json.systemUnderTest.dataNodeInstanceType %></td>
                 <td><%= `${json.workloadConfig.dataset} / ${json.workloadConfig.warmupIterations} warmupIterations / ${json.workloadConfig.testIterations} testIterations` %></td>
                 <td><%= json.testResults.operationsSummary.index.latencyMillis.p50 %></td>

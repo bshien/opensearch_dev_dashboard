@@ -55,6 +55,34 @@ async function fetchh(res, page){
                 }
             }
             
+            // dummy data
+            build_nums[i].result = 'FAILURE';
+            let num = Math.trunc(build_nums[i].build_num / 10) % 10;
+            let num1 = build_nums[i].build_num % 10;
+            if(num % 2 === 1){
+                build_nums[i].result = 'SUCCESS';
+            }
+            if(num1 % 3 === 0){
+                if(build_nums[i].result === 'SUCCESS'){
+                    build_nums[i].result = 'FAILURE';
+                }
+                else{
+                    build_nums[i].result = 'SUCCESS';
+                }
+            }
+            const date = new Date(1660867124186 - ((i+1) * 3346 * 5 * 1000));
+            build_nums[i].start_time = date.toLocaleString('en-US', {
+                timeZone: 'America/Los_Angeles',
+                dateStyle: 'short',
+                timeStyle: 'short',
+                
+            });
+
+            let rand = Math.random() * 3600 * 1000;
+            build_nums[i].duration = utility.convert_build_duration(rand);
+
+            
+            
 
         }
         else {
@@ -76,6 +104,7 @@ async function fetchh(res, page){
                 
 
             }
+
             build_nums[i].result = build_json.result;
             build_nums[i].version = build_json.description?.slice(0, build_json.description.indexOf("/"));
             build_nums[i].running = build_json.building ? "Running" : "Done";
@@ -136,7 +165,8 @@ app.get('/CVE/:build_number-:dashboard', function(req, res){
     else{
         yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
     }
-    res.render('CVE', {yml_json: yml_json, change_formatting: utility.change_formatting});
+    let miki_map = utility.parse_miki();
+    res.render('CVE', {yml_json: yml_json, miki_map: miki_map});
     
 })
 
@@ -160,5 +190,7 @@ app.get('/perf', function(req, res){
 
 app.listen(port, function(){
     console.log(`Example app listening on ${port}!`);
+    
+
 });
 

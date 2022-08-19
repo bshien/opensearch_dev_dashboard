@@ -16,7 +16,7 @@
             <% for(let i = 0; i < yml_json.components.length; i++){ %>
             <tr>
                 <td><%= yml_json.components[i].name %></td>
-                <td><a href="<%= `https://advisories.aws.barahmand.com/vulnerabilities/${change_formatting(yml_json.components[i].name)}`%>">CVE</a></td>
+                <td><a href="<%= `https://advisories.aws.barahmand.com/vulnerabilities/${miki_map[yml_json.components[i].repository]}`%>">CVE</a></td>
             </tr>
             <% } %>
             <% } %>

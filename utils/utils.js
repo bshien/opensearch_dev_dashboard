@@ -1,12 +1,23 @@
 const fs = require('fs');
 const https = require('https');
 const fetch = require('node-fetch');
+const miki_json = require('../miki.json')
 
 const build_num_set = {};
 const dashboard_build_num_set = {};
 
 exports.build_num_set = build_num_set;
 exports.dashboard_build_num_set = dashboard_build_num_set;
+
+function parse_miki(){
+    let map = {};
+    miki_json.forEach(obj => {
+        map[obj.repo] = obj.name;
+    });
+    return map;
+}
+
+exports.parse_miki = parse_miki;
 
 function change_formatting(str){
     if(str === 'k-NN'){

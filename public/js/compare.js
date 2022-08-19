@@ -27,13 +27,15 @@ function compare(x){
         let keys = Object.keys(set);
         comp_list = [];
         for(let i = 0; i < set[keys[0]].length; i++){
-            comp_list.push((set[keys[1]][i] - set[keys[0]][i]) / set[keys[0]][i]);
+            let calc = ((set[keys[1]][i] - set[keys[0]][i]) / set[keys[0]][i]) * 100;
+            calc = Math.round(calc * 100) / 100;
+            comp_list.push(calc);
         }
         let addtr = document.createElement('tr');
         for(let i = 0; i < set[keys[0]].length + 5; i++){
             let addtd = document.createElement('td');
             if(i >= 5){
-                addtd.innerHTML = comp_list[i-5];
+                addtd.innerHTML = comp_list[i-5] + '%';
             }
             
             addtr.appendChild(addtd);
