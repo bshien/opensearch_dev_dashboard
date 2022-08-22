@@ -4,8 +4,10 @@ const express = require('express');
 const http = require('http');
 const https = require('https');
 const yaml = require('js-yaml');
+const advisories = require('./lib/advisories');
 const fs = require('fs');
 const utility = require('./utils/utils');
+
 
 // init
 const app = express();
@@ -70,9 +72,13 @@ async function fetchh(res, page){
                     build_nums[i].result = 'SUCCESS';
                 }
             }
-            const date = new Date(1660867124186 - ((i+1) * 3346 * 5 * 1000));
+            let timestamp = 1660867124186;
+            if(page === 'dashboards'){
+                timestamp = timestamp - 1000 * 3278 * 19
+            }
+            const date = new Date(timestamp - ((i+1) * 3346 * 5 * 1000));
             build_nums[i].start_time = date.toLocaleString('en-US', {
-                timeZone: 'America/Los_Angeles',
+                       timeZone: 'America/Los_Angeles',
                 dateStyle: 'short',
                 timeStyle: 'short',
                 
@@ -165,8 +171,14 @@ app.get('/CVE/:build_number-:dashboard', function(req, res){
     else{
         yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
     }
-    let miki_map = utility.parse_miki();
-    res.render('CVE', {yml_json: yml_json, miki_map: miki_map});
+    //let miki_map = utility.parse_miki();
+
+    let advisory_mapping = new Map();
+    for(const component of yml_json.components){
+        advisory_mapping.set(component.name, advisories.getURLForRepository(component.repository));
+    }
+    // console.log(advisory_mapping);
+    res.render('CVE', {advisory_mapping: advisory_mapping});
     
 })
 

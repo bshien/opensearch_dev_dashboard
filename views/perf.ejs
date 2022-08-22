@@ -12,6 +12,7 @@
         <table id="myTable">
             <tr>
                 <th>Compare</th>
+                <th>Version</th>
                 <th>Architecture</th>
                 <th>Security-Enabled?</th>
                 <th>Instance Type</th>
@@ -49,6 +50,7 @@
             </tr>
             <tr>
                 <td><button id="btn-<%= 0 %>">Compare</button></td>
+                <td> 1.3.5 </td>
                 <td> x64 </td>
                 <td> With Security </td>
                 <td><%= json.systemUnderTest.dataNodeInstanceType %></td>
@@ -88,6 +90,11 @@
             <% for(let i = 1; i < 5; i++){ %>
             <tr>
                 <td><button id="btn-<%= i %>">Compare</button></td>
+                <% if(i % 2 == 0){ %>
+                <td> 2.3.0 </td>
+                <% } else { %>
+                <td> 3.0.0 </td>
+                <% } %>
                 <td>x64</td>
                 <td>With Security</td>
                 <td><%= json.systemUnderTest.dataNodeInstanceType %></td>

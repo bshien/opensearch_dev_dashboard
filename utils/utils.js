@@ -173,8 +173,23 @@ function html_parse(req, old_res){
                 }
                 else{
                     comp.result = "DNF";
-                }
+                } 
             });
+
+            // dummy data
+            // for(let i = 0; i < compObjs.length; i++){
+            //     compObjs[i].result = 'SUCCESS';
+            //     if(i > (compObjs.length / 3)){
+            //         if(i % 3 == 0){
+            //             compObjs[i].result = 'FAILURE';
+            //         }
+            //     }
+            //     if(i < (compObjs.length / 3)){
+            //         if(i % 2 == 0){
+            //             compObjs[i].result = 'FAILURE';
+            //         }
+            //     }
+            // }
 
             old_res.render('integ', {compObjs: compObjs});
         });

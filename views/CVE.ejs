@@ -9,14 +9,12 @@
         <h1>CVE</h1>
         <table>
             <tr>
-                <th>Plugin</th>
-                <th>CVE Link</th>
+                <th>Plugin Link to CVE</th>
             </tr>
-            <% if(yml_json.components){ %>
-            <% for(let i = 0; i < yml_json.components.length; i++){ %>
+            <% if(advisory_mapping instanceof Map){ %>
+            <% for(const [name, advisoryUrl] of advisory_mapping) { %>
             <tr>
-                <td><%= yml_json.components[i].name %></td>
-                <td><a href="<%= `https://advisories.aws.barahmand.com/vulnerabilities/${miki_map[yml_json.components[i].repository]}`%>">CVE</a></td>
+                <td><a href="<%= advisoryUrl %>"><%= name %></a></td>
             </tr>
             <% } %>
             <% } %>

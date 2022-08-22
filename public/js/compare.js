@@ -4,23 +4,24 @@ let set = {};
 
 function compare(x){
     set[x+1] = [];
+    let start_col = 6;
     
     //console.log(set);
     if(Object.keys(set).length === 2){
         table = document.getElementById("myTable");
-        tr = table.getElementsByTagName("tr");
+        trs = table.getElementsByTagName("tr");
 
         //console.log(set);
-        for(let i = 1; i < tr.length; i++){
+        for(let i = 1; i < trs.length; i++){
             if(i in set){
-                tds = tr[i].getElementsByTagName("td")
-                for(let j = 5; j < tds.length; j++){
+                tds = trs[i].getElementsByTagName("td")
+                for(let j = start_col; j < tds.length; j++){
                     set[i].push(parseFloat(tds[j].innerHTML))
                 }
                 
             }
             else{
-                tr[i].style.display = "none";
+                trs[i].style.display = "none";
             }
         }
 
@@ -32,10 +33,10 @@ function compare(x){
             comp_list.push(calc);
         }
         let addtr = document.createElement('tr');
-        for(let i = 0; i < set[keys[0]].length + 5; i++){
+        for(let i = 0; i < set[keys[0]].length + start_col; i++){
             let addtd = document.createElement('td');
-            if(i >= 5){
-                addtd.innerHTML = comp_list[i-5] + '%';
+            if(i >= start_col){
+                addtd.innerHTML = comp_list[i-start_col] + '%';
             }
             
             addtr.appendChild(addtd);
