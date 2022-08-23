@@ -130,7 +130,7 @@ async function fetchh(res, page){
         build_nums[i].arm64_rpm = utility.create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'arm64', 'rpm', url_add);
     }
     //console.log(build_nums);
-    utility.check_delete(build_nums, folder_name, page);
+    utility.check_delete(folder_name, page);
     res.render(page, {builds_array: build_nums, NUM_OF_BUILDS: NUM_OF_BUILDS}); 
 }
 
@@ -197,6 +197,10 @@ app.get('/integ/:build_number-:version-:dashboard', function(req, res){
 
 app.get('/perf', function(req, res){
     utility.dl_perf(res);
+})
+
+app.get('/test_perf', function(req, res){
+    utility.perf_fetch(res);
 })
 
 

@@ -4,7 +4,9 @@ const fetch = require('node-fetch');
 const miki_json = require('../miki.json')
 
 const build_num_set = {};
+const perf_num_set = {};
 const dashboard_build_num_set = {};
+const NUM_OF_PERFS = 10;
 
 exports.build_num_set = build_num_set;
 exports.dashboard_build_num_set = dashboard_build_num_set;
@@ -48,10 +50,13 @@ function create_yml_url(build_num, dashboards){
 
 exports.create_yml_url = create_yml_url;
 
-function check_delete(build_nums, folder_name, page){
+function check_delete(folder_name, page){
     let set = build_num_set;
     if(page === 'dashboards'){
         set = dashboard_build_num_set;
+    }
+    if(page === 'test_perf'){
+        set = perf_num_set;
     }
     fs.readdir(folder_name, (err, files) => {
         files.forEach(file => {
@@ -119,15 +124,7 @@ function convert_build_duration(ms){
 exports.convert_build_duration = convert_build_duration;
 
 
-async function dl_perf(res){
-    let builds_url = 'https://ci.opensearch.org/ci/dbc/perf-test/1.2.4/762/linux/x64/test-results/perf-test/without-security/2caaa49a-3af7-438e-a090-7cf39f59a599.json';
-    let jobs = await fetch(builds_url);
-    let jobs_json = await jobs.json();
-    // console.log(jobs_json);
-    res.render('perf', {json: jobs_json});
-}
 
-exports.dl_perf = dl_perf;
 
 function html_parse(req, old_res){
     https.get('https://build.ci.opensearch.org/job/integ-test/2683/flowGraphTable/',(res) => {
@@ -243,3 +240,80 @@ function dashboard_parse(req, old_res){
 }
 
 exports.dashboard_parse = dashboard_parse;
+
+async function dl_perf(res){
+    let builds_url = 'https://ci.opensearch.org/ci/dbc/perf-test/1.2.4/762/linux/x64/test-results/perf-test/without-security/2caaa49a-3af7-438e-a090-7cf39f59a599.json';
+    let jobs = await fetch(builds_url);
+    let jobs_json = await jobs.json();
+    // console.log(jobs_json);
+    res.render('perf', {json: jobs_json});
+}
+
+exports.dl_perf = dl_perf;
+
+async function perf_fetch(res){
+    let perf_url = 'https://build.ci.opensearch.org/job/perf-test/';
+    let folder_name = 'perf_jsons';
+    let page = 'test_perf';
+    let jobs = await fetch(perf_url + '/api/json');
+    let jobs_json = await jobs.json();
+    perf_nums = []
+    for(let i = 0; i < NUM_OF_PERFS; i++){
+        perf_nums.push({number: jobs_json.builds[i].number});
+        perf_num_set[jobs_json.builds[i].number.toString()] = null;
+    }
+    console.log(perf_nums);
+
+    for(const perf_num of perf_nums){
+        if(fs.existsSync('perf_jsons/' + perf_num.number.toString())){
+            perf_num.running = 'Done';
+            if(fs.existsSync(`${folder_name}/${perf_num.number}/JSON_NOT_FOUND`)){
+                perf_num.result = 'JSON NOT FOUND';
+            // } else {
+            //     try {
+            //         const metrics_json = JSON.parse(fs.readFileSync(`${folder_name}/${perf_num.number}/perf.json`));
+            //         console.log('metrics_json: ', metrics_json);
+                    
+            //     } catch (e) {
+            //         console.log(e);
+            //     }
+            }
+
+        }
+        else {
+            let new_url = perf_url + '/' + perf_num.number.toString() + '/api/json';
+            //console.log(new_url);
+            let specific_perf = await fetch(new_url);
+            let perf_json = await specific_perf.json();
+            //console.log(build_json);
+            if(!perf_json.building){
+                fs.mkdir(`${folder_name}/` + perf_num.number.toString(), (err)=>{
+                    if(err){
+                        console.log(err);
+                    }
+                    else{
+                        console.log(`Directory ${perf_num.number} created`);
+                        //create url and download json into build num folder
+                    }
+                });
+                
+
+            }
+            const version_re = /[0-9].[0-9].[0-9]/;
+            perf_json.description?.match(version_re)[0]
+            perf_num.result = perf_json.result;
+            perf_num.version = perf_json.description?.match(version_re)[0];
+            perf_num.running = perf_json.building ? "Running" : "Done";
+            
+           
+            
+        }
+    }
+    //console.log(build_nums);
+    check_delete(folder_name, page);
+    res.render(page, {perf_nums: perf_nums}); 
+    
+
+}
+
+exports.perf_fetch = perf_fetch;
