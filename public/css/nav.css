@@ -1,0 +1,34 @@
+
+
+ul.topnav {
+    z-index: 1;
+    display: flex; 
+    justify-content: space-evenly; 
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #646464;
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    
+    
+    
+}
+
+ul.topnav li {float: left;}
+
+ul.topnav li a {
+  display: block;
+  color: whitesmoke;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  width: 33vw;
+}
+
+ul.topnav li a:hover:not(.active) {background-color: #111;}
+
+ul.topnav li a.active {background-color: #363636;}

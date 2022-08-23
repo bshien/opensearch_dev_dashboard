@@ -86,3 +86,13 @@ a:hover{
 :visited{
     color: rgb(170, 0, 170)
 }
+
+td{
+   
+
+}
+#commit-icon{
+    position:absolute;
+    max-height:100%;
+    top:0;
+}

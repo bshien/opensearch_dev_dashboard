@@ -12,13 +12,13 @@
                 <th>Plugin</th>
                 <th>Github Head Commit</th>
             </tr>
-            <% if(yml_json.components){ %>
-            <% for(let i = 0; i < yml_json.components.length; i++){ %>
+            <% if(Array.isArray(components)){ %>
+            <% for(const component of components){ %>
             <tr>
-                <td><%= yml_json.components[i].name %></td>
-                <td><a href="<%= yml_json.components[i].repository.slice(0, -4) + '/commit/' + yml_json.components[i].ref%>"><%= yml_json.components[i].ref %></a></td>
+                <td><%= component.name %></td>
+                <td><a href="<%= component.repository.slice(0, -4) + '/commit/' + component.ref%>"><%= component.ref %></a></td>
             </tr>
-            <% } %>
+            <% } %>         
             <% } %>
         </table>
     </body>

@@ -156,7 +156,7 @@ app.get('/commits/:build_number-:dashboard', function(req, res){
     else{
         yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
     }
-    res.render('commits', {yml_json: yml_json});
+    res.render('commits', {components: yml_json.components});
     
 })
 
