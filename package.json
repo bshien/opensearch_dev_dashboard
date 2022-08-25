@@ -7,5 +7,10 @@
   },
   "scripts": {
     "start": "node index.js"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "perf_jsons"
+    ]
   }
 }

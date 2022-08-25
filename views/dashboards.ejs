@@ -32,7 +32,7 @@
             </tr>
             <% for(let i = 0; i < NUM_OF_BUILDS; i++){ %>
             <tr class="border">
-                <td><a href="https://build.ci.opensearch.org/job/distribution-build-opensearch-dashboards/<%= builds_array[i].build_num %>"><%= builds_array[i].build_num %></a></td>
+                <td><a target='_blank' href="https://build.ci.opensearch.org/job/distribution-build-opensearch-dashboards/<%= builds_array[i].build_num %>"><%= builds_array[i].build_num %></a></td>
                 <td><%= builds_array[i].running %></td>
                 <td class="result"><%= builds_array[i].result %></td>
                 <td><%= builds_array[i].version %></td>

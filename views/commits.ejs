@@ -16,7 +16,7 @@
             <% for(const component of components){ %>
             <tr>
                 <td><%= component.name %></td>
-                <td><a href="<%= component.repository.slice(0, -4) + '/commit/' + component.ref%>"><%= component.ref %></a></td>
+                <td><a target='_blank' href="<%= component.repository.slice(0, -4) + '/commit/' + component.ref%>"><%= component.ref %></a></td>
             </tr>
             <% } %>         
             <% } %>

@@ -14,7 +14,7 @@
             <% if(advisory_mapping instanceof Map){ %>
             <% for(const [name, advisoryUrl] of advisory_mapping) { %>
             <tr>
-                <td><a href="<%= advisoryUrl %>"><%= name %></a></td>
+                <td><a target='_blank' href="<%= advisoryUrl %>"><%= name %></a></td>
             </tr>
             <% } %>
             <% } %>
