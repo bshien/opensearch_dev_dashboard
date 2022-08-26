@@ -4,7 +4,7 @@ let set = {};
 
 function compare(x){
     set[x+1] = [];
-    let start_col = 6;
+    let start_col = 9;
     
     //console.log(set);
     if(Object.keys(set).length === 2){
@@ -36,7 +36,15 @@ function compare(x){
         for(let i = 0; i < set[keys[0]].length + start_col; i++){
             let addtd = document.createElement('td');
             if(i >= start_col){
-                addtd.innerHTML = comp_list[i-start_col] + '%';
+                let val = comp_list[i-start_col];
+                addtd.innerHTML = val + '%';
+                if(val > 0){
+                    addtd.style.color = 'green';
+                    addtd.innerHTML = '+' + addtd.innerHTML;
+                }
+                else if(val < 0){
+                    addtd.style.color = 'red';
+                }
             }
             
             addtr.appendChild(addtd);
@@ -46,7 +54,7 @@ function compare(x){
     }
 }
 
-for(let i = 0; i < 5; i++){
+for(let i = 0; i < 20; i++){
     let btn = document.getElementById("btn-" + i);
     btn.addEventListener('click', event => {
         compare(i);

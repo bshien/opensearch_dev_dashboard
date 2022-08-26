@@ -49,43 +49,13 @@ async function fetchh(res, page){
                 build_nums[i].result = 'ABORTED';
             } else {
                 try {
-                    const yml_json = yaml.load(fs.readFileSync(`${folder_name}/${build_nums[i].build_num}/commits.yml`, 'utf8'));
+                    const yml_json = yaml.load(fs.readFileSync(`${folder_name}/${build_nums[i].build_num}/buildInfo.yml`, 'utf8'));
                     //console.log(yml_json);
                     build_nums[i].version = yml_json.build.version;
                 } catch (e) {
                     console.log(e);
                 }
             }
-            
-            // dummy data
-            build_nums[i].result = 'FAILURE';
-            let num = Math.trunc(build_nums[i].build_num / 10) % 10;
-            let num1 = build_nums[i].build_num % 10;
-            if(num % 2 === 1){
-                build_nums[i].result = 'SUCCESS';
-            }
-            if(num1 % 3 === 0){
-                if(build_nums[i].result === 'SUCCESS'){
-                    build_nums[i].result = 'FAILURE';
-                }
-                else{
-                    build_nums[i].result = 'SUCCESS';
-                }
-            }
-            let timestamp = 1660867124186;
-            if(page === 'dashboards'){
-                timestamp = timestamp - 1000 * 3278 * 19
-            }
-            const date = new Date(timestamp - ((i+1) * 3346 * 5 * 1000));
-            build_nums[i].start_time = date.toLocaleString('en-US', {
-                       timeZone: 'America/Los_Angeles',
-                dateStyle: 'short',
-                timeStyle: 'short',
-                
-            });
-
-            let rand = Math.random() * 3600 * 1000;
-            build_nums[i].duration = utility.convert_build_duration(rand);
 
             
             
@@ -151,10 +121,10 @@ app.get('/commits/:build_number-:dashboard', function(req, res){
     // download_manifest(manifest_url, res);
     let yml_json = null;
     if(req.params.dashboard === 'd'){
-        yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+        yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/buildInfo.yml`, 'utf8'));
     }
     else{
-        yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+        yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/buildInfo.yml`, 'utf8'));
     }
     res.render('commits', {components: yml_json.components});
     
@@ -166,10 +136,10 @@ app.get('/CVE/:build_number-:dashboard', function(req, res){
     //const yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
     let yml_json = null;
     if(req.params.dashboard === 'd'){
-        yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+        yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/buildInfo.yml`, 'utf8'));
     }
     else{
-        yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/commits.yml`, 'utf8'));
+        yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/buildInfo.yml`, 'utf8'));
     }
     //let miki_map = utility.parse_miki();
 
@@ -195,11 +165,11 @@ app.get('/integ/:build_number-:version-:dashboard', function(req, res){
 
 
 
-app.get('/perf', function(req, res){
+app.get('/perf_old', function(req, res){
     utility.dl_perf(res);
 })
 
-app.get('/test_perf', function(req, res){
+app.get('/perf', function(req, res){
     utility.perf_fetch(res);
 })
 

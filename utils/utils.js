@@ -45,7 +45,7 @@ function create_artifact_url(build_num, version, architecture, type, dashboards)
 exports.create_artifact_url = create_artifact_url;
 
 function create_yml_url(build_num, dashboards){
-    return 'https://build.ci.opensearch.org/job/distribution-build-opensearch' + dashboards + '/' + build_num + '/artifact/commits.yml';
+    return 'https://build.ci.opensearch.org/job/distribution-build-opensearch' + dashboards + '/' + build_num + '/artifact/buildInfo.yml';
 }
 
 exports.create_yml_url = create_yml_url;
@@ -55,7 +55,7 @@ function check_delete(folder_name, page){
     if(page === 'dashboards'){
         set = dashboard_build_num_set;
     }
-    if(page === 'test_perf'){
+    if(page === 'perf'){
         set = perf_num_set;
     }
     fs.readdir(folder_name, (err, files) => {
@@ -75,7 +75,7 @@ exports.check_delete = check_delete;
 
 function download_yml(yml_url, build_num, folder_name){
     https.get(yml_url,(res) => {
-        let path = `${__dirname}/../${folder_name}/${build_num}/commits.yml`; 
+        let path = `${__dirname}/../${folder_name}/${build_num}/buildInfo.yml`; 
         const filePath = fs.createWriteStream(path, {flags: 'w+'});
         res.pipe(filePath);
         filePath.on('finish',() => {
@@ -254,7 +254,7 @@ exports.dl_perf = dl_perf;
 async function perf_fetch(res){
     let perf_url = 'https://build.ci.opensearch.org/job/perf-test/';
     let folder_name = 'perf_jsons';
-    let page = 'test_perf';
+    let page = 'perf';
     let jobs = await fetch(perf_url + '/api/json');
     let jobs_json = await jobs.json();
     perf_nums = []
@@ -318,6 +318,11 @@ async function perf_fetch(res){
                 perf_dl(url_with, folder_name, perf_num, 'with_security');
                 perf_dl(url_without, folder_name, perf_num, 'without_security');
                 
+            } else {
+                fs.mkdirSync(`${folder_name}/${perf_num.number}/with_security/BUILDING`, {recursive: true});
+                fs.mkdirSync(`${folder_name}/${perf_num.number}/without_security/BUILDING`, {recursive: true});
+                ejs_pass.push(create_perf_obj(perf_num, 'with_security'));
+                ejs_pass.push(create_perf_obj(perf_num, 'without_security'));
             }
             
         }
@@ -326,10 +331,10 @@ async function perf_fetch(res){
     //console.log(build_nums);
     check_delete(folder_name, page);
 
-    console.log('ejs pass', ejs_pass);
-    for(const print of ejs_pass){
-        console.log(JSON.stringify(print));
-    }
+    // console.log('ejs pass', ejs_pass);
+    // for(const print of ejs_pass){
+    //     console.log(JSON.stringify(print));
+    // }
     
     res.render(page, {perf_nums: ejs_pass}); 
     
@@ -345,18 +350,59 @@ function create_perf_obj(perf_num, security){
     // let perf_names = ['x64_with' , 'x64_without', 'arm64_with', 'arm64_without'];
     // let perf_names = ['with_security' , 'without_security'];
 
-    let obj = {};
+    let obj = {number: perf_num.number};
     if(fs.existsSync(`perf_jsons/${perf_num.number}/${security}/JSON_403`)){
         obj.result = 'JSON 403';
-        obj.number = perf_num.number;
         console.log("Did 403");
-    } else {
+    } 
+    else if(fs.existsSync(`perf_jsons/${perf_num.number}/${security}/BUILDING`)){
+        obj.running = 'Running';
+        console.log("Did BUILDING");
+    }
+    else {
         try {
             obj = {number: perf_num.number, running: perf_num.running, version: perf_num.version, security_enabled: security, architecture: perf_num.architecture}
             
             const metrics_json = JSON.parse(fs.readFileSync(`perf_jsons/${perf_num.number}/${security}/perf.json`));
-            console.log('metrics_json: ', metrics_json);
-            
+            // console.log('metrics_json: ', metrics_json);
+            obj.version = metrics_json.version;
+            obj.architecture = metrics_json.architecture;
+            obj.running = 'Done';
+            obj.result = metrics_json.result;
+
+            obj.instanceType = metrics_json.systemUnderTest.dataNodeInstanceType;
+            obj.workloadDetails = `${metrics_json.workloadConfig.dataset} / ${metrics_json.workloadConfig.warmupIterations} warmupIterations / ${metrics_json.workloadConfig.testIterations} testIterations`;
+            obj.indexLatency50 = metrics_json.testResults.operationsSummary.index.latencyMillis.p50;
+            obj.indexLatency90 = metrics_json.testResults.operationsSummary.index.latencyMillis.p90;
+            obj.indexLatency99 = metrics_json.testResults.operationsSummary.index.latencyMillis.p99;
+            obj.indexLatency100 = metrics_json.testResults.operationsSummary.index.latencyMillis.p100;
+            obj.indexThroughput0 = metrics_json.testResults.operationsSummary.index.requestsPerSecond.p0;
+            obj.indexThroughput50 = metrics_json.testResults.operationsSummary.index.requestsPerSecond.p50;
+            obj.indexThroughput100 = metrics_json.testResults.operationsSummary.index.requestsPerSecond.p100;
+            obj.indexOperationOpCount = metrics_json.testResults.operationsSummary.index.opCount;
+            obj.indexOperationErrCount = metrics_json.testResults.operationsSummary.index.opErrorCount;
+            obj.indexOperationErrRate = metrics_json.testResults.operationsSummary.index.opErrorRate;
+            obj.queryLatency50 = metrics_json.testResults.operationsSummary.query.latencyMillis.p50;
+            obj.queryLatency90 = metrics_json.testResults.operationsSummary.query.latencyMillis.p90;
+            obj.queryLatency99 = metrics_json.testResults.operationsSummary.query.latencyMillis.p99;
+            obj.queryLatency100 = metrics_json.testResults.operationsSummary.query.latencyMillis.p100;
+            obj.queryThroughput0 = metrics_json.testResults.operationsSummary.query.requestsPerSecond.p0;
+            obj.queryThroughput50 = metrics_json.testResults.operationsSummary.query.requestsPerSecond.p50;
+            obj.queryThroughput100 = metrics_json.testResults.operationsSummary.query.requestsPerSecond.p100;
+            obj.queryOperationOpsCount = metrics_json.testResults.operationsSummary.query.opCount;
+            obj.queryOperationErrCount = metrics_json.testResults.operationsSummary.query.opErrorCount;
+            obj.queryOperationErrRate = metrics_json.testResults.operationsSummary.query.opErrorRate;
+            obj.cpu50 = metrics_json.testResults.cpuStats.overall.p50;
+            obj.cpu90 = metrics_json.testResults.cpuStats.overall.p90;
+            obj.cpu99 = metrics_json.testResults.cpuStats.overall.p99;
+            obj.cpu100 = metrics_json.testResults.cpuStats.overall.p100;
+            obj.memory50 = metrics_json.testResults.memoryStats.overall.p50;
+            obj.memory90 = metrics_json.testResults.memoryStats.overall.p90;
+            obj.memory99 = metrics_json.testResults.memoryStats.overall.p99;
+            obj.memory100 = metrics_json.testResults.memoryStats.overall.p100;
+            obj.gcOld = metrics_json.testResults.garbageCollection.overall.oldGCTimeMillis;
+            obj.gcYoung = metrics_json.testResults.garbageCollection.overall.youngGCTimeMillis;
+
 
             console.log("Actually didn't 403");
             
@@ -380,48 +426,9 @@ async function perf_dl(url, folder_name, perf_num, sec){
         let metrics_json = await url_resp.json();
         metrics_json.architecture = perf_num.architecture;
         metrics_json.version = perf_num.version;
+        metrics_json.result = perf_num.result;
         fs.writeFileSync(path, JSON.stringify(metrics_json, null, 2) , 'utf-8');
         ejs_pass.push(create_perf_obj(perf_num, sec));
     }
-
-
-
-    // https.get(url, (res) => {
-    //     fs.mkdirSync(`${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}`, {recursive: true});
-    //     let path = `${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}/perf.json`; 
-    //     const filePath = fs.createWriteStream(path, {flags: 'w+'});
-    //     res.pipe(filePath);
-    //     filePath.on('finish', () => {
-    //         filePath.close();
-    //         console.log(`${perf_num.number} ${sec} json Download Completed'`);
-    //         console.log('status code being:', res.statusCode);
-    //         if(res.statusCode === 403){
-    //             fs.mkdirSync(`${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}/JSON_403`);
-    //             console.log(`Directory ${perf_num.number}/${perf_num.architecture}/${sec}/JSON_403 created`);
-    //         } else {
-    //             try {
-    //                 const fd = fs.openSync(`${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}/perf.json`, 'w');
-    //                 fs.writeSync(fd, 'write', 1)
-
-    //                 fs.close(fd, (err) => {
-    //                     if (err)
-    //                       console.error('Failed to close file', err);
-    //                     else {
-    //                       console.log("\n> File Closed successfully");
-    //                     }
-    //                 });
-    //             } catch (err) {
-    //                 console.error(err);
-    //             }
-                
-    //         }
-
-    //         ejs_pass.push(create_perf_obj(perf_num, sec));
-    //         return;
-
-            
-    //         ///////ejs_pass.push(create_perf_arr(perf_num));
-    //     });
-    // });
 
 }
