@@ -1,0 +1,208 @@
+{
+  "testExecutionId": "561d6088-24d5-4979-96f7-d451b5fb973d",
+  "testOwner": "opensearch-devops",
+  "testDescription": "",
+  "anomalous": "No",
+  "testResults": {
+    "testStartTime": 1661420835000,
+    "testEndTime": 1661443003399,
+    "testDuration": 22168399,
+    "operationsSummary": {
+      "index": {
+        "opCount": 46024,
+        "opErrorCount": 0,
+        "opErrorRate": 0,
+        "requestsPerSecond": {
+          "p0": 43553.67578125,
+          "p50": 45416.554711456585,
+          "p100": 50214.046875
+        },
+        "latencyMillis": {
+          "p50": 1674.5805126812147,
+          "p90": 2242.1815468995587,
+          "p99": 4008.2535184733088,
+          "p100": 6027.32373046875
+        }
+      },
+      "query": {
+        "opCount": 1510,
+        "opErrorCount": 0,
+        "opErrorRate": 0,
+        "requestsPerSecond": {
+          "p0": 1.7065210580825805,
+          "p50": 1.7333669523398079,
+          "p100": 1.7542966723442077
+        },
+        "latencyMillis": {
+          "p50": 345.4110908508301,
+          "p90": 352.81673789978026,
+          "p99": 362.08081716918946,
+          "p100": 370.52455139160156
+        }
+      }
+    },
+    "operations": {
+      "default": {
+        "opCount": 302,
+        "opErrorCount": 0,
+        "opErrorRate": 0,
+        "requestsPerSecond": {
+          "p0": 3.0193190574645996,
+          "p50": 3.029453754425049,
+          "p100": 3.0573501586914062
+        },
+        "latencyMillis": {
+          "p50": 49.31816482543945,
+          "p90": 52.3094596862793,
+          "p99": 57.92223312377935,
+          "p100": 72.66853332519531
+        }
+      },
+      "distance_amount_agg": {
+        "opCount": 302,
+        "opErrorCount": 0,
+        "opErrorRate": 0,
+        "requestsPerSecond": {
+          "p0": 2.012829303741455,
+          "p50": 2.0197795629501343,
+          "p100": 2.0395565032958984
+        },
+        "latencyMillis": {
+          "p50": 50.0958251953125,
+          "p90": 51.16876411437988,
+          "p99": 51.32480316162109,
+          "p100": 60.115631103515625
+        }
+      },
+      "index": {
+        "opCount": 46024,
+        "opErrorCount": 0,
+        "opErrorRate": 0,
+        "requestsPerSecond": {
+          "p0": 43553.67578125,
+          "p50": 45416.554711456585,
+          "p100": 50214.046875
+        },
+        "latencyMillis": {
+          "p50": 1674.5805126812147,
+          "p90": 2242.1815468995587,
+          "p99": 4008.2535184733088,
+          "p100": 6027.32373046875
+        }
+      },
+      "range": {
+        "opCount": 302,
+        "opErrorCount": 0,
+        "opErrorRate": 0,
+        "requestsPerSecond": {
+          "p0": 0.701757550239563,
+          "p50": 0.7031316061814626,
+          "p100": 0.7072010636329651
+        },
+        "latencyMillis": {
+          "p50": 337.3154754638672,
+          "p90": 341.02553405761716,
+          "p99": 344.41117797851564,
+          "p100": 352.0307922363281
+        }
+      },
+      "wait-until-merges-finish": {
+        "opCount": 5,
+        "opErrorCount": 0,
+        "opErrorRate": 0,
+        "requestsPerSecond": {
+          "p0": 0.0025702286511659622,
+          "p50": 126.83108520507812,
+          "p100": 237.6376190185547
+        },
+        "latencyMillis": {
+          "p50": 7.555270195007324,
+          "p90": 389070.09375,
+          "p99": 389070.09375,
+          "p100": 389070.09375
+        }
+      },
+      "date_histogram_agg": {
+        "opCount": 302,
+        "opErrorCount": 0,
+        "opErrorRate": 0,
+        "requestsPerSecond": {
+          "p0": 1.4993040561676025,
+          "p50": 1.500030279159546,
+          "p100": 1.5013821125030518
+        },
+        "latencyMillis": {
+          "p50": 638.4754842122396,
+          "p90": 651.9860168457033,
+          "p99": 673.0644946289062,
+          "p100": 673.2258911132812
+        }
+      },
+      "autohisto_agg": {
+        "opCount": 302,
+        "opErrorCount": 0,
+        "opErrorRate": 0,
+        "requestsPerSecond": {
+          "p0": 1.2993953227996826,
+          "p50": 1.4144395589828491,
+          "p100": 1.4659935235977173
+        },
+        "latencyMillis": {
+          "p50": 651.8505045572916,
+          "p90": 667.5939147949218,
+          "p99": 683.681376953125,
+          "p100": 694.5819091796875
+        }
+      }
+    },
+    "cpuStats": {
+      "overall": {
+        "p50": 96,
+        "p90": 97,
+        "p99": 97,
+        "p100": 97
+      }
+    },
+    "memoryStats": {
+      "overall": {
+        "p50": 48,
+        "p90": 63,
+        "p99": 89.82,
+        "p100": 93
+      }
+    },
+    "garbageCollection": {
+      "overall": {
+        "oldGCTimeMillis": 0,
+        "youngGCTimeMillis": 823352
+      }
+    },
+    "customTelemetryData": {
+      "overall": []
+    }
+  },
+  "processMemoryProfilerResults": null,
+  "systemUnderTest": {
+    "dataNodeCount": 1,
+    "masterNodeCount": 0,
+    "dataNodeInstanceType": "m6g.xlarge",
+    "masterNodeInstanceType": null,
+    "elasticsearchDistributionType": "OpenSearch 2.2",
+    "clusterIdentity": {
+      "clusterName": "test-single-5905-arm64-441",
+      "awsAccount": null,
+      "endpoint": "172.31.51.86:80",
+      "region": "eu-west-1"
+    },
+    "aes": null
+  },
+  "workloadConfig": {
+    "dataset": "nyc_taxis",
+    "warmupIterations": 2,
+    "testIterations": 3,
+    "loadGenerationHostType": null,
+    "loadGenerationHostCount": 0
+  },
+  "architecture": "arm64",
+  "version": "2.2.0"
+}

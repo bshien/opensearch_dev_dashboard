@@ -269,6 +269,10 @@ async function perf_fetch(res){
     for(const perf_num of perf_nums){
         if(fs.existsSync('perf_jsons/' + perf_num.number.toString())){
             // ejs_pass.push(create_perf_arr(perf_num));
+            
+
+            
+
             console.log(perf_num.number.toString() + "exists(not check_delete)");
             ejs_pass.push(create_perf_obj(perf_num, 'with_security'));
             ejs_pass.push(create_perf_obj(perf_num, 'without_security'));
@@ -342,7 +346,7 @@ function create_perf_obj(perf_num, security){
     // let perf_names = ['with_security' , 'without_security'];
 
     let obj = {};
-    if(fs.existsSync(`perf_jsons/${perf_num.number}/${perf_num.architecture}/${security}/JSON_403`)){
+    if(fs.existsSync(`perf_jsons/${perf_num.number}/${security}/JSON_403`)){
         obj.result = 'JSON 403';
         obj.number = perf_num.number;
         console.log("Did 403");
@@ -350,9 +354,9 @@ function create_perf_obj(perf_num, security){
         try {
             obj = {number: perf_num.number, running: perf_num.running, version: perf_num.version, security_enabled: security, architecture: perf_num.architecture}
             
-            // const metrics_json = JSON.parse(fs.readFileSync(`${folder_name}/${perf_num.number}/perf.json`));
-            // console.log('metrics_json: ', metrics_json);
-            // console.log(`${__dirname}/perf_jsons/${perf_num.number}/${name}/JSON_403`);
+            const metrics_json = JSON.parse(fs.readFileSync(`perf_jsons/${perf_num.number}/${security}/perf.json`));
+            console.log('metrics_json: ', metrics_json);
+            
 
             console.log("Actually didn't 403");
             
@@ -363,27 +367,61 @@ function create_perf_obj(perf_num, security){
     return obj;
 }
 
-function perf_dl(url, folder_name, perf_num, sec){
-    https.get(url, (res) => {
-        fs.mkdirSync(`${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}`, {recursive: true});
-        let path = `${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}/perf.json`; 
-        const filePath = fs.createWriteStream(path, {flags: 'w+'});
-        res.pipe(filePath);
-        filePath.on('finish', () => {
-            filePath.close();
-            console.log(`${perf_num.number} ${sec} json Download Completed'`);
-            console.log('status code being:', res.statusCode);
-            if(res.statusCode === 403){
-                fs.mkdirSync(`${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}/JSON_403`);
-                console.log(`Directory ${perf_num.number}/${perf_num.architecture}/${sec}/JSON_403 created`);
-            }
+async function perf_dl(url, folder_name, perf_num, sec){
+    fs.mkdirSync(`${folder_name}/${perf_num.number}/${sec}`, {recursive: true});
+    let path = `${folder_name}/${perf_num.number}/${sec}/perf.json`;
+    let url_resp = await fetch(url);
+    if (!url_resp.ok){
+        if(url_resp.status === 403){
+            fs.mkdirSync(`${folder_name}/${perf_num.number}/${sec}/JSON_403`);
+            console.log(`Directory ${perf_num.number}/${sec}/JSON_403 created`);
+        }
+    } else{
+        let metrics_json = await url_resp.json();
+        metrics_json.architecture = perf_num.architecture;
+        metrics_json.version = perf_num.version;
+        fs.writeFileSync(path, JSON.stringify(metrics_json, null, 2) , 'utf-8');
+        ejs_pass.push(create_perf_obj(perf_num, sec));
+    }
 
-            ejs_pass.push(create_perf_obj(perf_num, sec));
-            return;
+
+
+    // https.get(url, (res) => {
+    //     fs.mkdirSync(`${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}`, {recursive: true});
+    //     let path = `${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}/perf.json`; 
+    //     const filePath = fs.createWriteStream(path, {flags: 'w+'});
+    //     res.pipe(filePath);
+    //     filePath.on('finish', () => {
+    //         filePath.close();
+    //         console.log(`${perf_num.number} ${sec} json Download Completed'`);
+    //         console.log('status code being:', res.statusCode);
+    //         if(res.statusCode === 403){
+    //             fs.mkdirSync(`${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}/JSON_403`);
+    //             console.log(`Directory ${perf_num.number}/${perf_num.architecture}/${sec}/JSON_403 created`);
+    //         } else {
+    //             try {
+    //                 const fd = fs.openSync(`${folder_name}/${perf_num.number}/${perf_num.architecture}/${sec}/perf.json`, 'w');
+    //                 fs.writeSync(fd, 'write', 1)
+
+    //                 fs.close(fd, (err) => {
+    //                     if (err)
+    //                       console.error('Failed to close file', err);
+    //                     else {
+    //                       console.log("\n> File Closed successfully");
+    //                     }
+    //                 });
+    //             } catch (err) {
+    //                 console.error(err);
+    //             }
+                
+    //         }
+
+    //         ejs_pass.push(create_perf_obj(perf_num, sec));
+    //         return;
 
             
-            //ejs_pass.push(create_perf_arr(perf_num));
-        });
-    });
+    //         ///////ejs_pass.push(create_perf_arr(perf_num));
+    //     });
+    // });
 
 }
