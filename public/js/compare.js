@@ -4,7 +4,7 @@ let set = {};
 
 function compare(x){
     set[x+1] = [];
-    let start_col = 9;
+    let start_col = 10;
     
     //console.log(set);
     if(Object.keys(set).length === 2){

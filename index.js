@@ -52,6 +52,9 @@ async function fetchh(res, page){
                     const yml_json = yaml.load(fs.readFileSync(`${folder_name}/${build_nums[i].build_num}/buildInfo.yml`, 'utf8'));
                     //console.log(yml_json);
                     build_nums[i].version = yml_json.build.version;
+                    build_nums[i].result = yml_json.build.status;
+                    build_nums[i].start_time = utility.start_date_convert(yml_json.results.startTimestamp);
+                    build_nums[i].duration = utility.convert_build_duration(yml_json.results.duration);
                 } catch (e) {
                     console.log(e);
                 }
@@ -84,13 +87,7 @@ async function fetchh(res, page){
             build_nums[i].result = build_json.result;
             build_nums[i].version = build_json.description?.slice(0, build_json.description.indexOf("/"));
             build_nums[i].running = build_json.building ? "Running" : "Done";
-            const date = new Date(build_json.timestamp);
-            build_nums[i].start_time = date.toLocaleString('en-US', {
-                timeZone: 'America/Los_Angeles',
-                dateStyle: 'short',
-                timeStyle: 'short',
-                
-            });
+            build_nums[i].start_time = utility.start_date_convert(build_json.timestamp);
             build_nums[i].duration = utility.convert_build_duration(build_json.duration);
             
         }

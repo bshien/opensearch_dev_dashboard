@@ -21,6 +21,18 @@ function parse_miki(){
 
 exports.parse_miki = parse_miki;
 
+function start_date_convert(ms){
+    const date = new Date(ms);
+    return date.toLocaleString('en-US', {
+        timeZone: 'America/Los_Angeles',
+        dateStyle: 'short',
+        timeStyle: 'short',
+        
+    });   
+}
+
+exports.start_date_convert = start_date_convert;
+
 function change_formatting(str){
     if(str === 'k-NN'){
         return str + ': OpenSearch Plugin';
@@ -290,21 +302,22 @@ async function perf_fetch(res){
             //perf_json.description?.match(version_re)[0]
             // console.log('build no:', perf_json.description?.match(build_no_re)[1]);
             let build_no = perf_json.description?.match(build_no_re)[1];
-            if(!perf_json.description?.match(architecture_re)){
-                console.log('regex for architecture failed');
-            }
+            // if(!perf_json.description?.match(architecture_re)){
+            //     console.log('regex for architecture failed');
+            // }
             perf_num.architecture = perf_json.description?.match(architecture_re)[1];
-            console.log('architecture:', perf_num.architecture);
+            // console.log('architecture:', perf_num.architecture);
             perf_num.result = perf_json.result;
             perf_num.version = perf_json.description?.match(version_re)[0];
             perf_num.running = perf_json.building ? "Running" : "Done";
+            perf_num.buildNumber = perf_json.description?.match(build_no_re)[1];
 
             if(!perf_json.building){
                     
                 console.log(`Directory ${perf_num.number} created`);
                 //create url and download json into build num folder
-                let url_with = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${build_no}/linux/${perf_num.architecture}/tar/test-results/${perf_num.number}/perf-test/with-security/perf-test.json`;
-                let url_without = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${build_no}/linux/${perf_num.architecture}/tar/test-results/${perf_num.number}/perf-test/without-security/perf-test.json`;
+                let url_with = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${perf_num.buildNumber}/linux/${perf_num.architecture}/tar/test-results/${perf_num.number}/perf-test/with-security/perf-test.json`;
+                let url_without = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${perf_num.buildNumber}/linux/${perf_num.architecture}/tar/test-results/${perf_num.number}/perf-test/without-security/perf-test.json`;
                 // let arm64_with = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${perf_num.number}/linux/arm64/tar/test-results/perf-test/with-security/perf-test.json`;
                 // let arm64_without = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${perf_num.number}/linux/arm64/tar/test-results/perf-test/without-security/perf-test.json`;
                 
@@ -369,6 +382,7 @@ function create_perf_obj(perf_num, security){
             obj.architecture = metrics_json.architecture;
             obj.running = 'Done';
             obj.result = metrics_json.result;
+            obj.buildNumber = metrics_json.buildNumber;
 
             obj.instanceType = metrics_json.systemUnderTest.dataNodeInstanceType;
             obj.workloadDetails = `${metrics_json.workloadConfig.dataset} / ${metrics_json.workloadConfig.warmupIterations} warmupIterations / ${metrics_json.workloadConfig.testIterations} testIterations`;
@@ -427,6 +441,7 @@ async function perf_dl(url, folder_name, perf_num, sec){
         metrics_json.architecture = perf_num.architecture;
         metrics_json.version = perf_num.version;
         metrics_json.result = perf_num.result;
+        metrics_json.buildNumber = perf_num.buildNumber;
         fs.writeFileSync(path, JSON.stringify(metrics_json, null, 2) , 'utf-8');
         ejs_pass.push(create_perf_obj(perf_num, sec));
     }
