@@ -196,6 +196,14 @@ app.get('/integ/:x64_num-:arm64_num-:dashboard', async function(req, res){
     
 })
 
+app.get('/integ/--:dashboard', function(req, res){
+    if(req.params.dashboard === 'nd'){
+        compObjs = {err: 'No integ tests run for this build.'}
+        res.render('integ', {compObjs: compObjs})
+    }
+    
+})
+
 
 
 app.get('/perf_old', function(req, res){

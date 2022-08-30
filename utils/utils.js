@@ -417,6 +417,8 @@ function create_perf_obj(perf_num, security){
             obj.running = 'Done';
             obj.result = metrics_json.result;
             obj.buildNumber = metrics_json.buildNumber;
+            obj.startTime = start_date_convert(metrics_json.testResults.testStartTime);
+            obj.duration = convert_build_duration(metrics_json.testResults.testDuration);
 
             obj.instanceType = metrics_json.systemUnderTest.dataNodeInstanceType;
             obj.workloadDetails = `${metrics_json.workloadConfig.dataset} / ${metrics_json.workloadConfig.warmupIterations} warmupIterations / ${metrics_json.workloadConfig.testIterations} testIterations`;
