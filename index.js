@@ -74,25 +74,31 @@ async function fetchh(res, page){
             let specific_build = await fetch(new_url);
             let build_json = await specific_build.json();
             //console.log(build_json);
-            if(!build_json.building){
-                fs.mkdir(`${folder_name}/` + build_nums[i].build_num.toString(), (err)=>{
-                    if(err){
-                        console.log(err);
-                    }
-                    else{
-                        console.log(`Directory ${build_nums[i].build_num} created`);
-                        utility.download_yml(utility.create_yml_url(build_nums[i].build_num, url_add), build_nums[i].build_num, folder_name);
-                    }
-                });
-                
-
-            }
 
             build_nums[i].result = build_json.result;
             build_nums[i].version = build_json.description?.slice(0, build_json.description.indexOf("/"));
             build_nums[i].running = build_json.building ? "Running" : "Done";
             build_nums[i].start_time = utility.start_date_convert(build_json.timestamp);
             build_nums[i].duration = utility.convert_build_duration(build_json.duration);
+
+            if(!build_json.building){
+                fs.mkdirSync(`${folder_name}/` + build_nums[i].build_num.toString());
+                console.log(`Directory ${build_nums[i].build_num} created`);
+                utility.download_yml(utility.create_yml_url(build_nums[i].build_num, url_add), build_nums[i].build_num, folder_name);
+                
+                // download test yml
+                let test_manifest_resp = await fetch(`https://raw.githubusercontent.com/opensearch-project/opensearch-build/main/manifests/${build_nums[i].version}/opensearch-${build_nums[i].version}-test.yml`);
+                if(test_manifest_resp.ok){
+                    let body = await test_manifest_resp.text();
+                    fs.writeFileSync(`${folder_name}/${build_nums[i].build_num}/testManifest.yml`, body , 'utf-8');
+                            
+                }
+                
+                
+
+            }
+
+            
             
         }
         build_nums[i].x64_tar = utility.create_artifact_url(build_nums[i].build_num, build_nums[i].version, 'x64', 'tar', url_add);
@@ -154,7 +160,7 @@ app.get('/CVE/:build_number-:dashboard', function(req, res){
 })
 
 
-app.get('/integ/:x64_num-:arm64_num-:dashboard', async function(req, res){
+app.get('/integ/:build_number-:version-:x64_num-:arm64_num-:dashboard', async function(req, res){
     if(req.params.dashboard === 'nd'){
         let x64_url = `https://build.ci.opensearch.org/job/integ-test/${req.params.x64_num}/flowGraphTable/`;
         let arm64_url = `https://build.ci.opensearch.org/job/integ-test/${req.params.arm64_num}/flowGraphTable/`;
@@ -162,10 +168,10 @@ app.get('/integ/:x64_num-:arm64_num-:dashboard', async function(req, res){
         // let x64_url = `https://build.ci.opensearch.org/job/integ-test/2774/flowGraphTable/`;
         // let arm64_url = `https://build.ci.opensearch.org/job/integ-test/2775/flowGraphTable/`;
         
-        let x64_objs = await utility.html_parse(x64_url, req, res);
+        let x64_objs = await utility.html_parse(x64_url, req.params.x64_num, 'x64', req, res);
         // console.log('x64', x64_objs);
         
-        let arm64_objs = await utility.html_parse(arm64_url, req, res);
+        let arm64_objs = await utility.html_parse(arm64_url, req.params.arm64_num, 'arm64', req, res);
         // console.log('arm64',arm64_objs);
         //let arm64_objs = []
 
@@ -187,7 +193,7 @@ app.get('/integ/:x64_num-:arm64_num-:dashboard', async function(req, res){
                 compObjs.push(arm64_objs[i]);
             }
         }
-        console.log(compObjs);
+        //console.log(compObjs);
         res.render('integ', {compObjs: compObjs});
     }
     else if(req.params.dashboard === 'd'){
@@ -196,7 +202,7 @@ app.get('/integ/:x64_num-:arm64_num-:dashboard', async function(req, res){
     
 })
 
-app.get('/integ/--:dashboard', function(req, res){
+app.get('/integ/:build_number-:version---:dashboard', function(req, res){
     if(req.params.dashboard === 'nd'){
         compObjs = {err: 'No integ tests run for this build.'}
         res.render('integ', {compObjs: compObjs})

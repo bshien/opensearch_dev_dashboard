@@ -12,7 +12,8 @@
                 <th>Plugin</th>
                 <th>Architecture</th>
                 <th>Result</th>
-                <th>Logs</th>
+                <th>Logs(With Security)</th>
+                <th>Logs(Without Security)</th>
 
             </tr>
             <% if(compObjs.err){ %>
@@ -34,7 +35,16 @@
                         <td><%= compObjs[i].name %></td>
                         <td><%= (i % 2 == 0) ? 'x64' : 'arm64' %></td>
                         <td class="result"><%= compObjs[i].result %></td>
-                        <td class="result"><a href="<%= compObjs[i].log %>">x64/with-security</a></td>
+                        <% if(compObjs[i].logWithSecurity){ %>
+                            <td class="result"><a href="<%= compObjs[i].logWithSecurity %>">Log With Security</a></td>
+                        <% } else { %>
+                            <td></td>
+                        <% } %>
+                        <% if(compObjs[i].logWithSecurity){ %>
+                            <td class="result"><a href="<%= compObjs[i].logWithoutSecurity %>">Log Without Security</a></td>
+                        <% } else { %>
+                            <td></td>
+                        <% } %>
                     </tr>
                 <% } %>
             <% } %>

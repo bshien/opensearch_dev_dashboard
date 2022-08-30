@@ -1,6 +1,7 @@
 const fs = require('fs');
 const https = require('https');
 const fetch = require('node-fetch');
+const yaml = require('js-yaml');
 const miki_json = require('../miki.json')
 
 const build_num_set = {};
@@ -138,11 +139,11 @@ exports.convert_build_duration = convert_build_duration;
 
 
 
-async function html_parse(url, req, old_res){
+async function html_parse(url, integ_num, architecture, req, old_res){
     const response = await fetch(url);
     const body = await response.text();
 
-    //console.log(url, body);
+    // console.log(url, body);
 
     const re1 = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
     const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
@@ -175,8 +176,31 @@ async function html_parse(url, req, old_res){
     const compFin = [...body.matchAll(re3)];
     compFin.forEach(s => compFins_array.push(s[1]));
 
+    let security_map = new Map();
+    try{
+        yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/testManifest.yml`, 'utf8'));
+        // console.log('yml jseen', yml_json);
+        yml_json.components.forEach(comp => {
+            security_map.set(comp.name, comp['integ-test']['test-configs']);
+        });
+        // console.log(security_map);
+        
+    } catch(err) {
+        console.log('testManifest.yml error:', err);
+
+    }
     compObjs.forEach(comp =>{
-        comp.log = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/x64/tar/test-results/1/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
+        //console.log(security_map);
+        if(security_map.has(comp.name)){
+            // console.log(security_map.get(comp.name));
+            if(security_map.get(comp.name)?.includes('with-security')){
+                comp.logWithSecurity = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/${architecture}/tar/test-results/${integ_num}/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
+            }
+            if(security_map.get(comp.name)?.includes('without-security')){
+                comp.logWithoutSecurity = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/${architecture}/tar/test-results/${integ_num}/integ-test/${comp.name}/without-security/test-results/${comp.name}.yml`
+            }
+        }
+        // comp.log = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/${architecture}/tar/test-results/1/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
         if(compFins_array.includes(comp.name)){
             comp.result = 'SUCCESS';
             if(compErrors_array.includes(comp.name)){
@@ -195,51 +219,6 @@ async function html_parse(url, req, old_res){
 
 exports.html_parse = html_parse;
 
-// function html_parse(req, old_res){
-//     https.get('https://build.ci.opensearch.org/job/integ-test/2683/flowGraphTable/',(res) => {
-//         let body = "";
-//         res.on('readable', function() {
-//             body += res.read();
-//         });
-//         res.on('end', function() {
-            
-//             const re1 = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
-//             const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
-//             const re3 = new RegExp('<td>Completed running integtest for component ([a-zA-Z-]*)</td>', 'g');
-
-//             const compList = body.match(re2)[1].split(', ');
-//             let compObjs = [];
-//             compList.forEach(comp => {
-//                 compObjs.push({name: comp})
-//             });
-
-//             compErrors_array = [];
-//             compFins_array = [];
-//             const compError = [...body.matchAll(re1)];
-//             compError.forEach(s => compErrors_array.push(s[1]));
-
-//             const compFin = [...body.matchAll(re3)];
-//             compFin.forEach(s => compFins_array.push(s[1]));
-
-//             compObjs.forEach(comp =>{
-//                 comp.log = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/x64/tar/test-results/1/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
-//                 if(compFins_array.includes(comp.name)){
-//                     comp.result = 'SUCCESS';
-//                     if(compErrors_array.includes(comp.name)){
-//                         comp.result = 'FAILURE';
-//                     }              
-//                 }
-//                 else{
-//                     comp.result = "DNF";
-//                 } 
-//             });
-
-//             old_res.render('integ', {compObjs: compObjs});
-//         });
-//     });
-// }
-
-// exports.html_parse = html_parse;
 
 function dashboard_parse(req, old_res){
     https.get('https://ci.opensearch.org/ci/dbc/integ-test-opensearch-dashboards/2.1.0/4011/linux/x64/tar/test-results/1/integ-test/functionalTestDashboards/without-security/test-results/stdout.txt',(res) => {
