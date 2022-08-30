@@ -7,6 +7,7 @@ const yaml = require('js-yaml');
 const advisories = require('./lib/advisories');
 const fs = require('fs');
 const utility = require('./utils/utils');
+const e = require('express');
 
 
 // init
@@ -55,6 +56,9 @@ async function fetchh(res, page){
                     build_nums[i].result = yml_json.build.status;
                     build_nums[i].start_time = utility.start_date_convert(yml_json.results.startTimestamp);
                     build_nums[i].duration = utility.convert_build_duration(yml_json.results.duration);
+                    build_nums[i].integ = {};
+                    build_nums[i].integ.x64 = yml_json.results.integ_test_x64;
+                    build_nums[i].integ.arm64 = yml_json.results.integ_test_arm64;
                 } catch (e) {
                     console.log(e);
                 }
@@ -150,12 +154,44 @@ app.get('/CVE/:build_number-:dashboard', function(req, res){
 })
 
 
-app.get('/integ/:build_number-:version-:dashboard', function(req, res){
+app.get('/integ/:x64_num-:arm64_num-:dashboard', async function(req, res){
     if(req.params.dashboard === 'nd'){
-        utility.html_parse(req, res);
+        let x64_url = `https://build.ci.opensearch.org/job/integ-test/${req.params.x64_num}/flowGraphTable/`;
+        let arm64_url = `https://build.ci.opensearch.org/job/integ-test/${req.params.arm64_num}/flowGraphTable/`;
+
+        // let x64_url = `https://build.ci.opensearch.org/job/integ-test/2774/flowGraphTable/`;
+        // let arm64_url = `https://build.ci.opensearch.org/job/integ-test/2775/flowGraphTable/`;
+        
+        let x64_objs = await utility.html_parse(x64_url, req, res);
+        // console.log('x64', x64_objs);
+        
+        let arm64_objs = await utility.html_parse(arm64_url, req, res);
+        // console.log('arm64',arm64_objs);
+        //let arm64_objs = []
+
+        let compObjs = [];
+        let ind = 0;
+        
+        for(let i = 0; i < Math.min(x64_objs.length, arm64_objs.length); i++){
+            compObjs.push(x64_objs[i]);
+            compObjs.push(arm64_objs[i]);
+            ind++;
+        }
+        if(x64_objs.length > arm64_objs.length){
+            for(let i = ind; i < x64_objs.length; i++){
+                compObjs.push(x64_objs[i]);
+            }
+        }
+        else{
+            for(let i = ind; i < arm64_objs.length; i++){
+                compObjs.push(arm64_objs[i]);
+            }
+        }
+        console.log(compObjs);
+        res.render('integ', {compObjs: compObjs});
     }
     else if(req.params.dashboard === 'd'){
-        utility.dashboard_parse(req, res)
+        utility.dashboard_parse(req, res);
     }
     
 })

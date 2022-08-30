@@ -41,7 +41,7 @@
                 <td><%= builds_array[i].start_time %></td>
                 <td><%= builds_array[i].duration %></td>
                 <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
-                <td><a href="integ/<%= builds_array[i].build_num %>-<%= builds_array[i].version %>-nd">Integ</a></td>
+                <td><a href="integ/<%= builds_array[i].integ.x64 %>-<%= builds_array[i].integ.arm64 %>-nd">Integ</a></td>
                 <% } else { %>
                 <td></td>
                 <% } %>

@@ -10,13 +10,22 @@
         <table>
             <tr>
                 <th>Plugin</th>
+                <th>Architecture</th>
                 <th>Result</th>
                 <th>Logs</th>
 
             </tr>
+            <% if(compObjs.length === 0){ %>
+                <tr>
+                    <td>
+                        Integ Tests failed to start.
+                    </td>
+                </tr>
+            <% } %>
             <% for(let i = 0; i < compObjs.length; i++){ %>
             <tr>
                 <td><%= compObjs[i].name %></td>
+                <td><%= (i % 2 == 0) ? 'x64' : 'arm64' %></td>
                 <td class="result"><%= compObjs[i].result %></td>
                 <td class="result"><a href="<%= compObjs[i].log %>">x64/with-security</a></td>
             </tr>

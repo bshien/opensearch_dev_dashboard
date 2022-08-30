@@ -138,74 +138,108 @@ exports.convert_build_duration = convert_build_duration;
 
 
 
-function html_parse(req, old_res){
-    https.get('https://build.ci.opensearch.org/job/integ-test/2683/flowGraphTable/',(res) => {
-        let body = "";
-        res.on('readable', function() {
-            body += res.read();
-        });
-        res.on('end', function() {
-            //console.log(body);
-            //console.log("OK"); 
+async function html_parse(url, req, old_res){
+    const response = await fetch(url);
+    const body = await response.text();
 
-            // const re = new RegExp('<td>Error running integtest for component \w*</td>', 'g');
-            const re1 = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
-            //const re2 = new RegExp('<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>', 'g');
-            const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
-            const re3 = new RegExp('<td>Completed running integtest for component ([a-zA-Z-]*)</td>', 'g');
+    //console.log(url, body);
 
-            const compList = body.match(re2)[1].split(', ');
-            let compObjs = [];
-            compList.forEach(comp => {
-                compObjs.push({name: comp})
-            });
-            //console.log(compObjs);
-            compErrors_array = [];
-            compFins_array = [];
-            const compError = [...body.matchAll(re1)];
-            //console.log(compError);
-            // compError.forEach(s => console.log(s[1]));
-            compError.forEach(s => compErrors_array.push(s[1]));
+    const re1 = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
+    const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
+    const re3 = new RegExp('<td>Completed running integtest for component ([a-zA-Z-]*)</td>', 'g');
+    const err_re = /Integration Tests failed to start./;
 
-            const compFin = [...body.matchAll(re3)];
-            //console.log(compFin);
-            //compFin.forEach(s => console.log(s[1]));
-            compFin.forEach(s => compFins_array.push(s[1]));
+    if(body.match(err_re)){
+        return [];
+    }
 
-            compObjs.forEach(comp =>{
-                comp.log = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/x64/tar/test-results/1/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
-                if(compFins_array.includes(comp.name)){
-                    comp.result = 'SUCCESS';
-                    if(compErrors_array.includes(comp.name)){
-                        comp.result = 'FAILURE';
-                    }              
-                }
-                else{
-                    comp.result = "DNF";
-                } 
-            });
+    // let match = body.match(re2);
+    // const compList = [];
+    // if(match){
+    //     compList = match[1].split(', ');
+    // }
+    
+    const compList = body.match(re2)[1].split(', ');
 
-            // dummy data
-            // for(let i = 0; i < compObjs.length; i++){
-            //     compObjs[i].result = 'SUCCESS';
-            //     if(i > (compObjs.length / 3)){
-            //         if(i % 3 == 0){
-            //             compObjs[i].result = 'FAILURE';
-            //         }
-            //     }
-            //     if(i < (compObjs.length / 3)){
-            //         if(i % 2 == 0){
-            //             compObjs[i].result = 'FAILURE';
-            //         }
-            //     }
-            // }
+    let compObjs = [];
 
-            old_res.render('integ', {compObjs: compObjs});
-        });
+    compList.forEach(comp => {
+        compObjs.push({name: comp})
     });
+
+    compErrors_array = [];
+    compFins_array = [];
+    const compError = [...body.matchAll(re1)];
+    compError.forEach(s => compErrors_array.push(s[1]));
+
+    const compFin = [...body.matchAll(re3)];
+    compFin.forEach(s => compFins_array.push(s[1]));
+
+    compObjs.forEach(comp =>{
+        comp.log = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/x64/tar/test-results/1/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
+        if(compFins_array.includes(comp.name)){
+            comp.result = 'SUCCESS';
+            if(compErrors_array.includes(comp.name)){
+                comp.result = 'FAILURE';
+            }              
+        }
+        else{
+            comp.result = "DNF";
+        } 
+    });
+
+    // old_res.render('integ', {compObjs: compObjs});
+    return compObjs;
+     
 }
 
 exports.html_parse = html_parse;
+
+// function html_parse(req, old_res){
+//     https.get('https://build.ci.opensearch.org/job/integ-test/2683/flowGraphTable/',(res) => {
+//         let body = "";
+//         res.on('readable', function() {
+//             body += res.read();
+//         });
+//         res.on('end', function() {
+            
+//             const re1 = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
+//             const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
+//             const re3 = new RegExp('<td>Completed running integtest for component ([a-zA-Z-]*)</td>', 'g');
+
+//             const compList = body.match(re2)[1].split(', ');
+//             let compObjs = [];
+//             compList.forEach(comp => {
+//                 compObjs.push({name: comp})
+//             });
+
+//             compErrors_array = [];
+//             compFins_array = [];
+//             const compError = [...body.matchAll(re1)];
+//             compError.forEach(s => compErrors_array.push(s[1]));
+
+//             const compFin = [...body.matchAll(re3)];
+//             compFin.forEach(s => compFins_array.push(s[1]));
+
+//             compObjs.forEach(comp =>{
+//                 comp.log = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/x64/tar/test-results/1/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
+//                 if(compFins_array.includes(comp.name)){
+//                     comp.result = 'SUCCESS';
+//                     if(compErrors_array.includes(comp.name)){
+//                         comp.result = 'FAILURE';
+//                     }              
+//                 }
+//                 else{
+//                     comp.result = "DNF";
+//                 } 
+//             });
+
+//             old_res.render('integ', {compObjs: compObjs});
+//         });
+//     });
+// }
+
+// exports.html_parse = html_parse;
 
 function dashboard_parse(req, old_res){
     https.get('https://ci.opensearch.org/ci/dbc/integ-test-opensearch-dashboards/2.1.0/4011/linux/x64/tar/test-results/1/integ-test/functionalTestDashboards/without-security/test-results/stdout.txt',(res) => {
