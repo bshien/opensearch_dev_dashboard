@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8" />
+        <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    </head>
+
+    <body>
+        <h1>Integ</h1>
+        <table>
+            <tr>
+                <th>Plugin</th>
+                <th>Architecture</th>
+                <th>Result</th>
+                <th>Logs</th>
+
+            </tr>
+            
+            <% if(compObjs.length === 0){ %>
+                <tr>
+                    <td>
+                        Integ Tests failed to start.
+                    </td>
+                </tr>
+            <% } %>
+            <% for(let i = 0; i < compObjs.length; i++){ %>
+                <tr>
+                    <td><%= compObjs[i].name %></td>
+                    <td><%= compObjs[i].architecture %></td>
+                    <td class="result"><%= compObjs[i].result %></td>
+                    <% if(compObjs[i].log){ %>
+                        <td class="result"><a target="_blank" href="<%= compObjs[i].log %>">Log</a></td>
+                    <% } else { %>
+                        <td></td>
+                    <% } %>
+                    
+                </tr>
+            <% } %>
+            
+        </table>
+        <script src="../js/result_color.js"></script>
+    </body>
+</html>

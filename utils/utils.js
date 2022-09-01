@@ -220,48 +220,38 @@ async function html_parse(url, integ_num, architecture, req, old_res){
 exports.html_parse = html_parse;
 
 
-function dashboard_parse(req, old_res){
-    https.get('https://ci.opensearch.org/ci/dbc/integ-test-opensearch-dashboards/2.1.0/4011/linux/x64/tar/test-results/1/integ-test/functionalTestDashboards/without-security/test-results/stdout.txt',(res) => {
-        let body = "";
-        res.on('readable', function() {
-            body += res.read();
-        });
-        res.on('end', function() {
-            // console.log(body);
-            // console.log("OK"); 
-            
+async function dashboard_parse(url, architecture, req, old_res){
 
-            // const re = new RegExp('<td>Error running integtest for component \w*</td>', 'g');
-            //const re1 = /\u2714  plugins/[-a-zA-Z ]*\//g;
-            const re1 = /\u2714  plugins\/([-a-zA-Z ]*)\//g;
-            const re2 = /\u2716  plugins\/([-a-zA-Z ]*)\//g;
-            // const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
-            // const re3 = new RegExp('<td>Completed running integtest for component ([a-zA-Z-]*)</td>', 'g');
+    const response = await fetch(url);
+    const body = await response.text();
 
-            let compObjs = [];
-            let plugin_status = {};
-            let passed_plugins_obj = {}
-            let failed_plugins_obj = {}
-            const comp_match_success = [...body.matchAll(re1)];
-            comp_match_success.forEach(plugin => {
-                //compObjs.push({name: plugin[1], result: 'SUCCESS'});
-                plugin_status[plugin[1]] = 'SUCCESS';
-            });
+    
+    
+    const re1 = /\u2714  plugins\/([-a-zA-Z ]*)\//g;
+    const re2 = /\u2716  plugins\/([-a-zA-Z ]*)\//g;
 
-            const comp_match_failed = [...body.matchAll(re2)];
-            comp_match_failed.forEach(plugin => {
-                plugin_status[plugin[1]] = 'FAILURE';       
-            });
-
-            // console.log(comp_match_failed);
-
-            let keys = Object.keys(plugin_status);
-            keys.forEach(key => compObjs.push({name: key, result: plugin_status[key]}));
-            
-
-            old_res.render('integ', {compObjs: compObjs});
-        });
+    let compObjs = [];
+    let plugin_status = {};
+    // let passed_plugins_obj = {}
+    // let failed_plugins_obj = {}
+    const comp_match_success = [...body.matchAll(re1)];
+    comp_match_success.forEach(plugin => {
+        //compObjs.push({name: plugin[1], result: 'SUCCESS'});
+        plugin_status[plugin[1]] = 'SUCCESS';
     });
+
+    const comp_match_failed = [...body.matchAll(re2)];
+    comp_match_failed.forEach(plugin => {
+        plugin_status[plugin[1]] = 'FAILURE';       
+    });
+
+    // console.log(comp_match_failed);
+
+    let keys = Object.keys(plugin_status);
+    keys.forEach(key => compObjs.push({name: key, result: plugin_status[key], architecture: architecture}));
+    
+    return compObjs;
+    
 }
 
 exports.dashboard_parse = dashboard_parse;

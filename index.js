@@ -87,7 +87,7 @@ async function fetchh(res, page){
                 utility.download_yml(utility.create_yml_url(build_nums[i].build_num, url_add), build_nums[i].build_num, folder_name);
                 
                 // download test yml
-                let test_manifest_resp = await fetch(`https://raw.githubusercontent.com/opensearch-project/opensearch-build/main/manifests/${build_nums[i].version}/opensearch-${build_nums[i].version}-test.yml`);
+                let test_manifest_resp = await fetch(`https://raw.githubusercontent.com/opensearch-project/opensearch-build/main/manifests/${build_nums[i].version}/opensearch${url_add}-${build_nums[i].version}-test.yml`);
                 if(test_manifest_resp.ok){
                     let body = await test_manifest_resp.text();
                     fs.writeFileSync(`${folder_name}/${build_nums[i].build_num}/testManifest.yml`, body , 'utf-8');
@@ -160,7 +160,7 @@ app.get('/CVE/:build_number-:dashboard', function(req, res){
 })
 
 
-app.get('/integ/:build_number-:version-:x64_num-:arm64_num-:dashboard', async function(req, res){
+app.get('/integ/:build_number-:version-:x64_num?-:arm64_num?-:dashboard', async function(req, res){
     if(req.params.dashboard === 'nd'){
         let x64_url = `https://build.ci.opensearch.org/job/integ-test/${req.params.x64_num}/flowGraphTable/`;
         let arm64_url = `https://build.ci.opensearch.org/job/integ-test/${req.params.arm64_num}/flowGraphTable/`;
@@ -197,7 +197,39 @@ app.get('/integ/:build_number-:version-:x64_num-:arm64_num-:dashboard', async fu
         res.render('integ', {compObjs: compObjs});
     }
     else if(req.params.dashboard === 'd'){
-        utility.dashboard_parse(req, res);
+        let x64_url_with = `https://ci.opensearch.org/ci/dbc/integ-test-opensearch-dashboards/${req.params.version}/${req.params.build_number}/linux/x64/tar/test-results/${req.params.x64_num}/integ-test/functionalTestDashboards/with-security/test-results/stdout.txt`;
+        let x64_url_without = `https://ci.opensearch.org/ci/dbc/integ-test-opensearch-dashboards/${req.params.version}/${req.params.build_number}/linux/x64/tar/test-results/${req.params.x64_num}/integ-test/functionalTestDashboards/without-security/test-results/stdout.txt`;
+        let arm64_url_with = `https://ci.opensearch.org/ci/dbc/integ-test-opensearch-dashboards/${req.params.version}/${req.params.build_number}/linux/arm64/tar/test-results/${req.params.arm64_num}/integ-test/functionalTestDashboards/with-security/test-results/stdout.txt`;
+        let arm64_url_without = `https://ci.opensearch.org/ci/dbc/integ-test-opensearch-dashboards/${req.params.version}/${req.params.build_number}/linux/arm64/tar/test-results/${req.params.arm64_num}/integ-test/functionalTestDashboards/without-security/test-results/stdout.txt`;
+        
+        
+        let x64_with_objs = await utility.dashboard_parse(x64_url_with, 'x64', req, res);
+        let x64_without_objs = await utility.dashboard_parse(x64_url_without,'x64',  req, res);
+        let arm64_with_objs = await utility.dashboard_parse(arm64_url_with,'arm64',  req, res);
+        let arm64_without_objs = await utility.dashboard_parse(arm64_url_without,'arm64',  req, res);
+
+        //console.log(x64_with_objs);
+        let compObjs = [];
+
+        for(let i = 0; i < Math.max(x64_with_objs.length, x64_without_objs.length, arm64_with_objs.length, arm64_without_objs.length); i++){
+            if(i < x64_with_objs.length){
+                x64_with_objs[i].log = x64_url_with;
+                compObjs.push(x64_with_objs[i]);
+            }
+            if(i < x64_without_objs.length){
+                x64_without_objs[i].log = x64_url_without;
+                compObjs.push(x64_without_objs[i]);
+            }
+            if(i < arm64_with_objs.length){
+                arm64_with_objs[i].log = arm64_url_with;
+                compObjs.push(arm64_with_objs[i]);
+            }
+            if(i < arm64_without_objs.length){
+                arm64_without_objs[i].log = arm64_url_without;
+                compObjs.push(arm64_without_objs[i]);
+            }
+        }
+        res.render('integ_dashboards', {compObjs: compObjs});
     }
     
 })
