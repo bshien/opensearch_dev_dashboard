@@ -50,6 +50,14 @@ The OpenSearch Dashboards page is the same, but the distribution builds are for 
 
 ## Performance Test Page
 
+On every page load, the page will make an API call the the Jenkins perf test page to get the latest 10 perf tests numbers. It will check if the folder with that number name exists:
+
+- If doesn't exist: It will create this number folder, create the link to the performance test json, download this json to a folder(adding some properties to the json for later display), and cache it into the number folder. It will then read from this file and display information from it.
+
+- If exists: It will read from the json and display information.
+
+There is a JS script controlling the functionality of the compare buttons, `public/js/compare.js`.
+
 
 
 ## Integ/BWC
@@ -62,6 +70,10 @@ To generate the logs, the application reads from the cached testManifest.yml fil
 
 ### OpenSearch Dashboards
 
+Every call to the Integ page will parse the txt stdout for each integ test, x64 and arm64, and with and without security, if they exist. The Integ page takes the integ test numbers of these two architectures to do this. The application uses regex to find which components failed and succeeded.
+
+The logs are simply links to this txt stdout file.
+
 ## Commits
 
 Taking the list of components from buildInfo.yml, it displays all of these in a column of a table. For each component, it then takes the git repository link and commit id from the buildInfo.yml file and generates the link to the head commit of the distribution build.
@@ -70,5 +82,12 @@ Taking the list of components from buildInfo.yml, it displays all of these in a 
 
 Taking the list of components from buildInfo.yml, it displays all of these in a column of a table. For each component, it takes the mapping from advisories.js(maps repo to name on Miki's website), and creates the URL to Miki's site.
 
+# Future Roadmap
+
+# How to Deploy code on AWS Beanstalk
+
+# Problems/ Potential Enhancements
+
+The performance compare functionality doesn't order the two rows by which rows the user selected first or second, it simply hides the other rows when the compare function is run. An improvement would be to put the row that the user clicked first on top.
 
 

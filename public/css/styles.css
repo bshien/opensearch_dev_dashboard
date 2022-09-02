@@ -2,10 +2,14 @@
     box-sizing: border-box;
     font-family: Helvetica, sans-serif;
 }
-
+.main-logo{
+    display: block; 
+}
 body {
     background-color: rgb(214, 226, 230);
-  }
+    display: inline-block;
+    
+}
 
 
 .col-1 {width: 8.33%;}
@@ -67,12 +71,19 @@ tr td:last-child{
 }
 
 
+
 th, td{
     padding: 2vh;
 }
 
 th{
     text-align: left;
+}
+
+.header{
+    position: sticky;
+    top: 46px;
+    z-index: 1;
 }
 
 a{
@@ -87,10 +98,6 @@ a:hover{
     color: rgb(170, 0, 170)
 }
 
-td{
-   
-
-}
 #commit-icon{
     position:absolute;
     max-height:100%;

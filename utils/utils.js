@@ -267,76 +267,68 @@ async function dl_perf(res){
 exports.dl_perf = dl_perf;
 
 async function perf_fetch(res){
+
+    // init
     let perf_url = 'https://build.ci.opensearch.org/job/perf-test/';
     let folder_name = 'perf_jsons';
     let page = 'perf';
     let jobs = await fetch(perf_url + '/api/json');
     let jobs_json = await jobs.json();
     perf_nums = []
-    ejs_pass = [] // passing to ejs
+    ejs_pass = [] // passing to ejs for render
+
+    // loop through past X performance tests, add their number to an object
     for(let i = 0; i < NUM_OF_PERFS; i++){
         perf_nums.push({number: jobs_json.builds[i].number});
-        perf_num_set[jobs_json.builds[i].number.toString()] = null;
+        perf_num_set[jobs_json.builds[i].number.toString()] = null; // for deleting old perf_jsons folders
     }
     console.log(perf_nums);
     
-
+    // for each performance test number
     for(const perf_num of perf_nums){
+
+        // if performance number folder exists
         if(fs.existsSync('perf_jsons/' + perf_num.number.toString())){
-            // ejs_pass.push(create_perf_arr(perf_num));
-            
-
-            
-
             console.log(perf_num.number.toString() + "exists(not check_delete)");
             ejs_pass.push(create_perf_obj(perf_num, 'with_security'));
             ejs_pass.push(create_perf_obj(perf_num, 'without_security'));
         }
-        else {
+        else { // if doesn't exist
+
+            // make more specific jenkins API call
             let new_url = perf_url + '/' + perf_num.number.toString() + '/api/json';
-            //console.log(new_url);
             let specific_perf = await fetch(new_url);
             let perf_json = await specific_perf.json();
-            //console.log(build_json);
 
+            // regex for getting version, build number, and architecture from JSON property: description.
             const version_re = /[0-9].[0-9].[0-9]/;
             const build_no_re = /Running performance test for build number: ([0-9]*) /;
             const architecture_re = /https:\/\/ci.opensearch.org\/ci\/dbc\/distribution-build-opensearch\/[0-9].[0-9].[0-9]\/latest\/linux\/([a-zA-Z0-9]+)\/tar\/dist\/opensearch\/manifest.yml/;
-            //perf_json.description?.match(version_re)[0]
-            // console.log('build no:', perf_json.description?.match(build_no_re)[1]);
-            let build_no = perf_json.description?.match(build_no_re)[1];
-            // if(!perf_json.description?.match(architecture_re)){
-            //     console.log('regex for architecture failed');
-            // }
-            perf_num.architecture = perf_json.description?.match(architecture_re)[1];
-            // console.log('architecture:', perf_num.architecture);
-            perf_num.result = perf_json.result;
+            
+            // add properties for later display
             perf_num.version = perf_json.description?.match(version_re)[0];
-            perf_num.running = perf_json.building ? "Running" : "Done";
             perf_num.buildNumber = perf_json.description?.match(build_no_re)[1];
-
+            perf_num.architecture = perf_json.description?.match(architecture_re)[1];
+            
+            perf_num.result = perf_json.result;
+            perf_num.running = perf_json.building ? "Running" : "Done";
+            
+            // if performance test is not still running
             if(!perf_json.building){
                     
                 console.log(`Directory ${perf_num.number} created`);
+
                 //create url and download json into build num folder
                 let url_with = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${perf_num.buildNumber}/linux/${perf_num.architecture}/tar/test-results/${perf_num.number}/perf-test/with-security/perf-test.json`;
                 let url_without = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${perf_num.buildNumber}/linux/${perf_num.architecture}/tar/test-results/${perf_num.number}/perf-test/without-security/perf-test.json`;
-                // let arm64_with = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${perf_num.number}/linux/arm64/tar/test-results/perf-test/with-security/perf-test.json`;
-                // let arm64_without = `https://ci.opensearch.org/ci/dbc/perf-test/${perf_num.version}/${perf_num.number}/linux/arm64/tar/test-results/perf-test/without-security/perf-test.json`;
                 
-                // let perf_array = [[x64_with, 'x64_with'], [x64_without,'x64_without'], [arm64_with, 'arm64_with'], [arm64_without,'arm64_without']];
-                
-                //let perf_names = ['x64_with' , 'x64_without', 'arm64_with', 'arm64_without'];
-
-                // for (const [url, name] of perf_array){
-                //     perf_dl(url, folder_name, perf_num, name);
-                // }
                 perf_dl(url_with, folder_name, perf_num, 'with_security');
                 perf_dl(url_without, folder_name, perf_num, 'without_security');
                 
-            } else {
-                fs.mkdirSync(`${folder_name}/${perf_num.number}/with_security/BUILDING`, {recursive: true});
-                fs.mkdirSync(`${folder_name}/${perf_num.number}/without_security/BUILDING`, {recursive: true});
+            } else { // perf test still running
+
+                // fs.mkdirSync(`${folder_name}/${perf_num.number}/with_security/BUILDING`, {recursive: true});
+                // fs.mkdirSync(`${folder_name}/${perf_num.number}/without_security/BUILDING`, {recursive: true});
                 ejs_pass.push(create_perf_obj(perf_num, 'with_security'));
                 ejs_pass.push(create_perf_obj(perf_num, 'without_security'));
             }
@@ -367,14 +359,12 @@ function create_perf_obj(perf_num, security){
     // let perf_names = ['with_security' , 'without_security'];
 
     let obj = {number: perf_num.number};
+    obj.running = 'Running';
+
     if(fs.existsSync(`perf_jsons/${perf_num.number}/${security}/JSON_403`)){
         obj.result = 'JSON 403';
         console.log("Did 403");
     } 
-    else if(fs.existsSync(`perf_jsons/${perf_num.number}/${security}/BUILDING`)){
-        obj.running = 'Running';
-        console.log("Did BUILDING");
-    }
     else {
         try {
             obj = {number: perf_num.number, running: perf_num.running, version: perf_num.version, security_enabled: security, architecture: perf_num.architecture}
@@ -431,6 +421,9 @@ function create_perf_obj(perf_num, security){
     }
     return obj;
 }
+
+
+// create perf num folder, attempt to download perf json.
 
 async function perf_dl(url, folder_name, perf_num, sec){
     fs.mkdirSync(`${folder_name}/${perf_num.number}/${sec}`, {recursive: true});

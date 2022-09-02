@@ -1,5 +1,4 @@
 
-
 ul.topnav {
     z-index: 1;
     display: flex; 
@@ -12,9 +11,7 @@ ul.topnav {
     position: sticky;
     top: 0;
     left: 0;
-    width: 100%;
-    
-    
+    width: 100vw;
     
 }
 
