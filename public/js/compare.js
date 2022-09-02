@@ -1,16 +1,47 @@
 let set = {};
+let checkbox_selected = [];
+let rows_hidden = false;
 
+function check_box_handle(x){
+    if(checkbox_selected.includes(x)){
+        const index = checkbox_selected.indexOf(x);
+        checkbox_selected.splice(index, 1);
+        
+        
+    } else {
+        checkbox_selected.push(x);
+    }
+    if(checkbox_selected.length === 3){
+        document.getElementById('btn-' + checkbox_selected[0]).checked = false;
+        checkbox_selected = checkbox_selected.slice(1);
+        
+    }
+    // console.log(checkbox_selected);
+}
 
+function compare(){
 
-function compare(x){
-    set[x+1] = [];
+    table = document.getElementById("myTable");
+    trs = table.getElementsByTagName("tr");
+
+    if(rows_hidden){
+        for(let i = 1; i < trs.length; i++){
+                trs[i].style.display = "";
+        }
+        rows_hidden = false;
+        return;
+    }
+
+    set = {};
+    checkbox_selected.forEach(x => {
+        set[x+1] = [];
+    });
+    
     let start_col = 12;
     
     //console.log(set);
-    if(Object.keys(set).length === 2){
-        table = document.getElementById("myTable");
-        trs = table.getElementsByTagName("tr");
-
+    if(checkbox_selected.length === 2){
+        
         //console.log(set);
         for(let i = 1; i < trs.length; i++){
             if(i in set){
@@ -24,6 +55,7 @@ function compare(x){
                 trs[i].style.display = "none";
             }
         }
+        rows_hidden = true;
 
         let keys = Object.keys(set);
         comp_list = [];
@@ -57,6 +89,6 @@ function compare(x){
 for(let i = 0; i < 20; i++){
     let btn = document.getElementById("btn-" + i);
     btn.addEventListener('click', event => {
-        compare(i);
+        check_box_handle(i);
     });
 }

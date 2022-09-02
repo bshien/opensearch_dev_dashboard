@@ -18,7 +18,7 @@
         </ul>
         <table id="myTable">
             <tr class="header">
-                <th>Compare</th>
+                <th><button onclick="compare();">Compare</button></th>
                 <th>Build Number</th>
                 <th>Perf Test Number</th>
                 <th>Status</th>
@@ -69,7 +69,7 @@
                     
                     
                     <tr class="border">
-                        <td><button id="btn-<%= i %>">Compare</button></td>
+                        <td><input type="checkbox" name="btn-<%= i %>" id="btn-<%= i %>" /></td>
                         <td><a target='_blank' href="https://build.ci.opensearch.org/job/distribution-build-opensearch/<%= perf_num.buildNumber %>"><%= perf_num.buildNumber %></a></td>
                         <td><a target='_blank' href="https://build.ci.opensearch.org/job/perf-test/<%= perf_num.number %>"><%= perf_num.number %></a></td>
                         <td><%= perf_num.running %></td>
