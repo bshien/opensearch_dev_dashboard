@@ -214,18 +214,22 @@ app.get('/integ/:build_number-:version-:x64_num?-:arm64_num?-:dashboard', async 
         for(let i = 0; i < Math.max(x64_with_objs.length, x64_without_objs.length, arm64_with_objs.length, arm64_without_objs.length); i++){
             if(i < x64_with_objs.length){
                 x64_with_objs[i].log = x64_url_with;
+                x64_with_objs[i].security = 'With security';
                 compObjs.push(x64_with_objs[i]);
             }
             if(i < x64_without_objs.length){
                 x64_without_objs[i].log = x64_url_without;
+                x64_without_objs[i].security = 'Without security';
                 compObjs.push(x64_without_objs[i]);
             }
             if(i < arm64_with_objs.length){
                 arm64_with_objs[i].log = arm64_url_with;
+                arm64_with_objs[i].security = 'With security';
                 compObjs.push(arm64_with_objs[i]);
             }
             if(i < arm64_without_objs.length){
                 arm64_without_objs[i].log = arm64_url_without;
+                arm64_without_objs[i].security = 'Without security';
                 compObjs.push(arm64_without_objs[i]);
             }
         }

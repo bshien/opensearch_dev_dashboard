@@ -36,12 +36,12 @@
                         <td><%= (i % 2 == 0) ? 'x64' : 'arm64' %></td>
                         <td class="result"><%= compObjs[i].result %></td>
                         <% if(compObjs[i].logWithSecurity){ %>
-                            <td class="result"><a href="<%= compObjs[i].logWithSecurity %>">Log With Security</a></td>
+                            <td class="result"><a target="_blank" href="<%= compObjs[i].logWithSecurity %>">Log With Security</a></td>
                         <% } else { %>
                             <td></td>
                         <% } %>
                         <% if(compObjs[i].logWithoutSecurity){ %>
-                            <td class="result"><a href="<%= compObjs[i].logWithoutSecurity %>">Log Without Security</a></td>
+                            <td class="result"><a target="_blank" href="<%= compObjs[i].logWithoutSecurity %>">Log Without Security</a></td>
                         <% } else { %>
                             <td></td>
                         <% } %>

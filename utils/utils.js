@@ -141,6 +141,9 @@ exports.convert_build_duration = convert_build_duration;
 
 async function html_parse(url, integ_num, architecture, req, old_res){
     const response = await fetch(url);
+    if(!response.ok){
+        return [];
+    }
     const body = await response.text();
 
     // console.log(url, body);
@@ -190,16 +193,7 @@ async function html_parse(url, integ_num, architecture, req, old_res){
 
     }
     compObjs.forEach(comp =>{
-        //console.log(security_map);
-        if(security_map.has(comp.name)){
-            // console.log(security_map.get(comp.name));
-            if(security_map.get(comp.name)?.includes('with-security')){
-                comp.logWithSecurity = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/${architecture}/tar/test-results/${integ_num}/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
-            }
-            if(security_map.get(comp.name)?.includes('without-security')){
-                comp.logWithoutSecurity = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/${architecture}/tar/test-results/${integ_num}/integ-test/${comp.name}/without-security/test-results/${comp.name}.yml`
-            }
-        }
+        
         // comp.log = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/${architecture}/tar/test-results/1/integ-test/${comp.name}/with-security/test-results/${comp.name}.yml`
         if(compFins_array.includes(comp.name)){
             comp.result = 'SUCCESS';
@@ -210,6 +204,20 @@ async function html_parse(url, integ_num, architecture, req, old_res){
         else{
             comp.result = "DNF";
         } 
+
+        //console.log(security_map);
+        if(security_map.has(comp.name)){
+            // console.log(comp.name, security_map.get(comp.name));
+            if(security_map.get(comp.name)?.includes('with-security')){
+                comp.logWithSecurity = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/${architecture}/tar/test-results/${integ_num}/integ-test/${comp.name}/with-security/test-results/stdout.txt`
+            }
+            if(security_map.get(comp.name)?.includes('without-security')){
+                comp.logWithoutSecurity = `https://ci.opensearch.org/ci/dbc/integ-test/${req.params.version}/${req.params.build_number}/linux/${architecture}/tar/test-results/${integ_num}/integ-test/${comp.name}/without-security/test-results/stdout.txt`
+            }
+            
+        } else{
+            comp.result = 'N/A';
+        }
     });
 
     // old_res.render('integ', {compObjs: compObjs});
@@ -223,7 +231,14 @@ exports.html_parse = html_parse;
 async function dashboard_parse(url, architecture, req, old_res){
 
     const response = await fetch(url);
+
+    if(!response.ok){
+        return [];
+    }
+
     const body = await response.text();
+
+    
 
     
     

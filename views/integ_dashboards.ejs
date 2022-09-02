@@ -11,6 +11,7 @@
             <tr>
                 <th>Plugin</th>
                 <th>Architecture</th>
+                <th>Security Enabled?</th>
                 <th>Result</th>
                 <th>Logs</th>
 
@@ -27,6 +28,7 @@
                 <tr>
                     <td><%= compObjs[i].name %></td>
                     <td><%= compObjs[i].architecture %></td>
+                    <td><%= compObjs[i].security %></td>
                     <td class="result"><%= compObjs[i].result %></td>
                     <% if(compObjs[i].log){ %>
                         <td class="result"><a target="_blank" href="<%= compObjs[i].log %>">Log</a></td>
