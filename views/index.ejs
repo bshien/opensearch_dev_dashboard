@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8" />
         <link rel="stylesheet" type="text/css" href="css/styles.css">
         <link rel="stylesheet" type="text/css" href="css/nav.css">
+        <link rel="stylesheet" type="text/css" href="css/loading.css">
     </head>
 
     <body>
@@ -24,7 +25,6 @@
             
             <tr class="header">
                 <th>Number</th>
-                <th>Status</th>
                 <th>Result</th>
                 <th>Version</th>
                 <th>Start Time(PDT)</th>
@@ -41,29 +41,40 @@
             <% for(let i = 0; i < NUM_OF_BUILDS; i++){ %>
             <tr class="border">
                 <td><a target='_blank' href="https://build.ci.opensearch.org/job/distribution-build-opensearch/<%= builds_array[i].build_num %>"><%= builds_array[i].build_num %></a></td>
-                <td><%= builds_array[i].running %></td>
-                <td class="result"><%= builds_array[i].result %></td>
+                <% if(builds_array[i].running === 'Done'){ %>
+                    <td class="result">
+                        <% if(builds_array[i].result === 'SUCCESS'){ %>
+                            <img id="icon" src="images/green_check.png" alt="green check">
+                        <% } else if (builds_array[i].result === 'FAILURE'){ %>
+                            <img id="icon" src="images/red_x.png" alt="red x">
+                        <% } else { %>
+                            <%= builds_array[i].result %>
+                        <% } %>
+                    </td>
+                <% } else if(builds_array[i].running === 'Running') {%>
+                    <td><div class="lds-dual-ring"></div></td>
+                <% } %>
                 <td><%= builds_array[i].version %></td>
                 <td><%= builds_array[i].start_time %></td>
                 <td><%= builds_array[i].duration %></td>
                 <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
-                <td><a href="integ/<%= builds_array[i].build_num %>-<%= builds_array[i].version %>-<%= builds_array[i].integ?.x64 %>-<%= builds_array[i].integ?.arm64 %>-nd">Integ</a></td>
+                <td><a href="integ/<%= builds_array[i].build_num %>-<%= builds_array[i].version %>-<%= builds_array[i].integ?.x64 %>-<%= builds_array[i].integ?.arm64 %>-nd"><img id="icon" src="images/integ.webp" alt="integ"></a></td>
                 <% } else { %>
                 <td></td>
                 <% } %>
                 <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
-                <td style="position:relative;"><a href="commits/<%= builds_array[i].build_num %>-nd"><img id="commit-icon" src="images/commit.png" alt="Commits"></a></td>
+                <td><a href="commits/<%= builds_array[i].build_num %>-nd"><img id="icon" src="images/commit.png" alt="Commits"></a></td>
                 <% } else { %>
                 <td></td>
                 <% } %>
                 <% if(builds_array[i].running === "Done" && builds_array[i].result != 'ABORTED') { %>
-                    <td><a href="CVE/<%= builds_array[i].build_num %>-nd">CVE</a></td>
+                    <td><a href="CVE/<%= builds_array[i].build_num %>-nd"><img id="icon" src="images/cve.png" alt="CVE"></a></td>
                 <% } else { %>
                     <td></td>
                 <% } %>
                 <% if(builds_array[i].result === "SUCCESS") { %>
-                <td><a href="<%= builds_array[i].x64_tar %>">x64</a><br><a href="<%= builds_array[i].arm64_tar %>">arm64</a></td>
-                <td><a href="<%= builds_array[i].x64_rpm %>">x64</a><br><a href="<%= builds_array[i].arm64_rpm %>">arm64</a></td>
+                <td><a href="<%= builds_array[i].x64_tar %>"><img id="icon" src="images/x64.png" alt="x64"></a><a href="<%= builds_array[i].arm64_tar %>"><img id="icon" src="images/arm64.png" alt="arm64"></a></td>
+                <td><a href="<%= builds_array[i].x64_rpm %>"><img id="icon" src="images/x64.png" alt="x64"></a><a href="<%= builds_array[i].arm64_rpm %>"><img id="icon" src="images/arm64.png" alt="arm64"></a></td>
                 
                 <% } else { %>
                     <td></td>
@@ -73,6 +84,6 @@
             <% } %>
         </table>
         
-        <script src="../js/result_color.js"></script>
+        <!-- <script src="../js/result_color.js"></script> -->
     </body>
 </html>

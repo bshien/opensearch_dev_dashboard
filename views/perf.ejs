@@ -5,6 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8" />
         <link rel="stylesheet" type="text/css" href="css/styles.css">
         <link rel="stylesheet" type="text/css" href="css/nav.css">
+        <link rel="stylesheet" type="text/css" href="css/loading.css">
+        <link rel="stylesheet" type="text/css" href="css/perf_header.css">
     </head>
 
     <body>
@@ -17,11 +19,10 @@
             
         </ul>
         <table id="myTable">
-            <tr class="header">
+            <tr  class="header">
                 <th><button onclick="compare();">Compare</button></th>
                 <th>Build Number</th>
                 <th>Perf Test Number</th>
-                <th>Status</th>
                 <th>Result</th>
                 <th>Version</th>
                 <th>Architecture</th>
@@ -72,8 +73,19 @@
                         <td><input type="checkbox" name="btn-<%= i %>" id="btn-<%= i %>" /></td>
                         <td><a target='_blank' href="https://build.ci.opensearch.org/job/distribution-build-opensearch/<%= perf_num.buildNumber %>"><%= perf_num.buildNumber %></a></td>
                         <td><a target='_blank' href="https://build.ci.opensearch.org/job/perf-test/<%= perf_num.number %>"><%= perf_num.number %></a></td>
-                        <td><%= perf_num.running %></td>
-                        <td class="result"><%= perf_num.result %></td>
+                        <% if(perf_num.running === 'Done'){ %>
+                            <td class="result">
+                                <% if(perf_num.result === 'SUCCESS'){ %>
+                                    <img id="icon" src="images/green_check.png" alt="green check">
+                                <% } else if (perf_num.result === 'FAILURE'){ %>
+                                    <img id="icon" src="images/red_x.png" alt="red x">
+                                <% } else { %>
+                                    <%= perf_num.result %>
+                                <% } %>
+                            </td>
+                        <% } else if(perf_num.running === 'Running') {%>
+                            <td><div class="lds-dual-ring"></div></td>
+                        <% } %>
                         <td><%= perf_num.version %></td>
                         <td><%= perf_num.architecture %></td>
                         <td><%= perf_num.security_enabled %></td>
@@ -121,6 +133,6 @@
             <% } %>
         </table>
         <script src="../js/compare.js"></script>
-        <script src="../js/result_color.js"></script>
+        <!-- <script src="../js/result_color.js"></script> -->
     </body>
 </html>

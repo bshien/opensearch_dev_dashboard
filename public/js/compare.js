@@ -22,12 +22,17 @@ function check_box_handle(x){
 function compare(){
 
     table = document.getElementById("myTable");
+    tbody = document.querySelector("tbody");
     trs = table.getElementsByTagName("tr");
+    // console.log(table);
 
     if(rows_hidden){
         for(let i = 1; i < trs.length; i++){
                 trs[i].style.display = "";
         }
+        const row = document.querySelector("tr:last-child");
+        // console.log(row);
+        row.remove();
         rows_hidden = false;
         return;
     }
@@ -37,7 +42,7 @@ function compare(){
         set[x+1] = [];
     });
     
-    let start_col = 12;
+    let start_col = 11;
     
     //console.log(set);
     if(checkbox_selected.length === 2){
@@ -81,7 +86,7 @@ function compare(){
             
             addtr.appendChild(addtd);
         }
-        table.appendChild(addtr);
+        tbody.appendChild(addtr);
         //console.log(comp_list);
     }
 }

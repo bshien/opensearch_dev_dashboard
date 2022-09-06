@@ -15,22 +15,29 @@ input[type=checkbox] {
     transform: scale(1.5);
 }
 
+/* @media screen and (min-width: 1200px) {
+    table {
+        width: 100%;
+    }
+} */
 
-[class*="col-"] {
-    float: left;
-    padding: 15px;
-    border: 1px solid red;
-}
-
-/* .border {
-    border: 1px solid red;
-    
-}
-*/
-
-table {
+table{
     border-collapse: separate;
     border-spacing: 0;
+    width: 100%;
+    text-align: center;
+}
+
+th, td{
+    /* padding: 2vh; */
+    
+    padding: 10px;
+    /* padding-top: 20px; 
+    padding-bottom: 20px;  */
+}
+
+th {
+    padding: 20px;
 }
 
 tr:nth-child(even) {
@@ -61,16 +68,6 @@ tr td:last-child{
     border-bottom-right-radius: 10px;
 }
 
-
-
-th, td{
-    padding: 2vh;
-}
-
-th{
-    text-align: left;
-}
-
 .header{
     position: sticky;
     top: 46px;
@@ -89,8 +86,10 @@ a:hover{
     color: rgb(170, 0, 170)
 }
 
-#commit-icon{
-    position:absolute;
+#icon{
+    /* position:absolute;
     max-height:100%;
-    top:0;
+    top:0; */
+    height: 40px;
+    width: 40px;
 }

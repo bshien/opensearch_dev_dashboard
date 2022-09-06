@@ -59,7 +59,6 @@ On every page load, the page will make an API call the the Jenkins perf test pag
 There is a JS script controlling the functionality of the compare buttons, `public/js/compare.js`.
 
 
-
 ## Integ/BWC
 
 ### OpenSearch
@@ -84,10 +83,26 @@ Taking the list of components from buildInfo.yml, it displays all of these in a 
 
 # Future Roadmap
 
+- 
+- Database instead of caching build number folders
+- Automate the deploying of code
+- Add framework to code that would change the EJS automatically.
+
+
 # How to Deploy code on AWS Beanstalk
+
+
 
 # Problems/ Potential Enhancements
 
-The performance compare functionality doesn't order the two rows by which rows the user selected first or second, it simply hides the other rows when the compare function is run. An improvement would be to put the row that the user clicked first on top.
+- The performance compare functionality doesn't order the two rows by which rows the user selected first or second, it simply hides the other rows when the compare function is run. An improvement would be to put the row that the user clicked first on top.
+
+- Add responsiveness to the website; when you resize the window, the columns shrink to it's smallest displayable size. The navbar could change into a hamburger dropdown button. This would help mobile users.
+
+- Automate deploying of code to AWS Beanstalk
+
+- 
+
+# Workflow Diagram
 
 
