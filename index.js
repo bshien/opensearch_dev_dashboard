@@ -205,7 +205,7 @@ app.get('/integ/:build_number-:version-:x64_num?-:arm64_num?-:dashboard', async 
         
         let x64_with_objs = await utility.dashboard_parse(x64_url_with, 'x64', req, res);
         let x64_without_objs = await utility.dashboard_parse(x64_url_without,'x64',  req, res);
-        let arm64_with_objs = await utility.dashboard_parse(arm64_url_with,'arm64',  req, res);
+        let arm64_with_objs = await utility.dashboard_parse(arm64_url_with, 'arm64',  req, res);
         let arm64_without_objs = await utility.dashboard_parse(arm64_url_without,'arm64',  req, res);
 
         //console.log(x64_with_objs);

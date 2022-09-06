@@ -237,28 +237,48 @@ async function dashboard_parse(url, architecture, req, old_res){
     }
 
     const body = await response.text();
-
-    
-
-    
     
     const re1 = /\u2714  plugins\/([-a-zA-Z ]*)\//g;
     const re2 = /\u2716  plugins\/([-a-zA-Z ]*)\//g;
+
+    // for cases where plugin name too long in the log, it's split into different lines with
+    // a bunch of whitespace and other info in between. This is kind of a hacky solution.
+    
+    const re1_1 = /\u2714  plugins\/([-a-zA-Z ]{27})[\s\S]{66}([-a-zA-Z ]*)\//g;
+    const re2_1 = /\u2716  plugins\/([-a-zA-Z ]{27})[\s\S]{66}([-a-zA-Z ]*)\//g;
 
     let compObjs = [];
     let plugin_status = {};
     // let passed_plugins_obj = {}
     // let failed_plugins_obj = {}
     const comp_match_success = [...body.matchAll(re1)];
+    
     comp_match_success.forEach(plugin => {
+        // console.log('success', plugin[1]);
         //compObjs.push({name: plugin[1], result: 'SUCCESS'});
         plugin_status[plugin[1]] = 'SUCCESS';
     });
 
+    const comp_match_success_1 = [...body.matchAll(re1_1)];
+    comp_match_success_1.forEach(plugin => {
+        // console.log('success', plugin[1]+plugin[2]);
+        //compObjs.push({name: plugin[1], result: 'SUCCESS'});
+        plugin_status[plugin[1]+plugin[2]] = 'SUCCESS';
+    });
+
     const comp_match_failed = [...body.matchAll(re2)];
+    // console.log(comp_match_failed[1]);
     comp_match_failed.forEach(plugin => {
+        // console.log('failure', plugin[1]);
         plugin_status[plugin[1]] = 'FAILURE';       
     });
+
+    const comp_match_failed_1 = [...body.matchAll(re2_1)];
+    comp_match_failed_1.forEach(plugin => {
+        // console.log('failure', plugin[1]+plugin[2]);
+        plugin_status[plugin[1]+plugin[2]] = 'FAILURE';
+    });
+
 
     // console.log(comp_match_failed);
 
