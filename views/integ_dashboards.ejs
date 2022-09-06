@@ -29,7 +29,15 @@
                     <td><%= compObjs[i].name %></td>
                     <td><%= compObjs[i].architecture %></td>
                     <td><%= compObjs[i].security %></td>
-                    <td class="result"><%= compObjs[i].result %></td>
+                    <td class="result">
+                        <% if(compObjs[i].result === 'SUCCESS'){ %>
+                            <img id="icon" src="../images/green_check.png" alt="green check">
+                        <% } else if (compObjs[i].result === 'FAILURE'){ %>
+                            <img id="icon" src="../images/red_x.png" alt="red x">
+                        <% } else { %>
+                            <%= compObjs[i].result %>
+                        <% } %>
+                    </td>
                     <% if(compObjs[i].log){ %>
                         <td class="result"><a target="_blank" href="<%= compObjs[i].log %>">Log</a></td>
                     <% } else { %>

@@ -34,7 +34,15 @@
                     <tr>
                         <td><%= compObjs[i].name %></td>
                         <td><%= (i % 2 == 0) ? 'x64' : 'arm64' %></td>
-                        <td class="result"><%= compObjs[i].result %></td>
+                        <td class="result">
+                            <% if(compObjs[i].result === 'SUCCESS'){ %>
+                                <img id="icon" src="../images/green_check.png" alt="green check">
+                            <% } else if (compObjs[i].result === 'FAILURE'){ %>
+                                <img id="icon" src="../images/red_x.png" alt="red x">
+                            <% } else { %>
+                                <%= compObjs[i].result %>
+                            <% } %>
+                        </td>
                         <% if(compObjs[i].logWithSecurity){ %>
                             <td class="result"><a target="_blank" href="<%= compObjs[i].logWithSecurity %>">Log With Security</a></td>
                         <% } else { %>
