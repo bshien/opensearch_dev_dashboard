@@ -14,7 +14,7 @@ const e = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
-const NUM_OF_BUILDS = 30;
+const NUM_OF_BUILDS = 40;
 let build_nums = [];
 
 async function fetchh(res, page){

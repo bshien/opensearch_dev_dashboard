@@ -74,16 +74,17 @@ function compare(){
             let addtd = document.createElement('td');
             if(i >= start_col){
                 let val = comp_list[i-start_col];
-                addtd.innerHTML = val + '%';
-                if(val > 0){
-                    addtd.style.color = 'green';
-                    addtd.innerHTML = '+' + addtd.innerHTML;
-                }
-                else if(val < 0){
-                    addtd.style.color = 'red';
-                }
-            }
-            
+                if(!isNaN(val)){
+                    addtd.innerHTML = val + '%';
+                    if(val > 0){
+                        addtd.style.color = 'green';
+                        addtd.innerHTML = '+' + addtd.innerHTML;
+                    }
+                    else if(val < 0){
+                        addtd.style.color = 'red';
+                    }
+                }               
+            }           
             addtr.appendChild(addtd);
         }
         tbody.appendChild(addtr);
