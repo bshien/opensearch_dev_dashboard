@@ -16,7 +16,7 @@ function check_box_handle(x){
         checkbox_selected = checkbox_selected.slice(1);
         
     }
-    // console.log(checkbox_selected);
+    console.log(checkbox_selected);
 }
 
 function compare(){
@@ -92,9 +92,11 @@ function compare(){
     }
 }
 
-for(let i = 0; i < 20; i++){
-    let btn = document.getElementById("btn-" + i);
-    btn.addEventListener('click', event => {
+// Adds click handler to all checkboxes
+let checkboxes = [...document.getElementsByClassName("checkbox")];
+
+for(let i = 0; i < checkboxes.length; i++){
+    checkboxes[i].addEventListener('click', event => {
         check_box_handle(i);
     });
 }
