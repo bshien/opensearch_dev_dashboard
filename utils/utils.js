@@ -46,7 +46,7 @@ function check_delete(folder_name, set){
 
 exports.check_delete = check_delete;
 
-// Downloads buildInfo.yml, better way to do it would be to use fetch.
+// Downloads buildInfo.yml, better way to do it would be to use fetch. <-- I do this in perf test JSON downloading
 function download_yml(yml_url, build_num, folder_name){
     https.get(yml_url,(res) => {
         let path = `${__dirname}/../${folder_name}/${build_num}/buildInfo.yml`; 
@@ -146,7 +146,7 @@ async function html_parse(url, integ_num, architecture, req){
         console.log('testManifest.yml error:', err);
     }
 
-
+    // Add properties to objects that will be displayed
     compObjs.forEach(comp =>{
         if(compFins.has(comp.name)){
             comp.result = 'SUCCESS';
@@ -198,7 +198,7 @@ async function dashboard_parse(url, architecture){
     const re2_1 = /\u2716  plugins\/([-a-zA-Z ]{27})[\s\S]{66}([-a-zA-Z ]*)\//g;
 
     let compObjs = [];
-    let plugin_status = {}; // Object with 
+    let plugin_status = {}; // Object with component names as properties, result for value
 
     const comp_match_success = [...body.matchAll(re1)];
     comp_match_success.forEach(plugin => {

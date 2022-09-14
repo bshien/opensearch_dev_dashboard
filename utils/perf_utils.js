@@ -2,9 +2,9 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 const utility = require('./utils.js');
 
-const NUM_OF_PERFS = 50;
 
-async function perf_fetch(res){
+
+async function perf_fetch(res, NUM_OF_PERFS){
     // init
     let folder_name = 'perf_jsons';
 

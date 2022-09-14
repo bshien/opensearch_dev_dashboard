@@ -15,12 +15,6 @@ input[type=checkbox] {
     transform: scale(1.5);
 }
 
-/* @media screen and (min-width: 1200px) {
-    table {
-        width: 100%;
-    }
-} */
-
 table{
     border-collapse: separate;
     border-spacing: 0;
@@ -29,11 +23,7 @@ table{
 }
 
 th, td{
-    /* padding: 2vh; */
-    
     padding: 10px;
-    /* padding-top: 20px; 
-    padding-bottom: 20px;  */
 }
 
 th {
@@ -87,9 +77,6 @@ a:hover{
 }
 
 #icon{
-    /* position:absolute;
-    max-height:100%;
-    top:0; */
     height: 40px;
     width: 40px;
 }
