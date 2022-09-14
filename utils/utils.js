@@ -20,7 +20,7 @@ exports.start_date_convert = start_date_convert;
 // Creates the artifact link
 function create_artifact_url(build_num, version, architecture, type, dashboards){
     return 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch' + dashboards +'/' + version + '/' + build_num + '/linux/' + architecture + '/' + type
-    + '/dist/opensearch/opensearch-' + version + '-linux-' + architecture + '.' + type + (type === 'tar' ? '.gz' : '');
+    + '/dist/opensearch' + dashboards + '/opensearch' + dashboards + '-' + version + '-linux-' + architecture + '.' + type + (type === 'tar' ? '.gz' : '');
 }
 
 exports.create_artifact_url = create_artifact_url;
@@ -54,7 +54,6 @@ function download_yml(yml_url, build_num, folder_name){
         res.pipe(filePath);
         filePath.on('finish',() => {
             filePath.close();
-            
             if(res.statusCode === 404){
                 fs.mkdir(folder_name + '/' + build_num + '/ABORTED', (err)=>{
                     if(err){
@@ -95,39 +94,46 @@ function convert_build_duration(ms){
 exports.convert_build_duration = convert_build_duration;
 
 
+// Integ parsing for OpenSearch, returns a list of objects with data to be displayed
+async function html_parse(url, integ_num, architecture, req){
 
-async function html_parse(url, integ_num, architecture, req, old_res){
     const response = await fetch(url);
+
+    // if the fetch errored out, return an empty object
     if(!response.ok){
         return [];
     }
+
     const body = await response.text();
 
-    const re1 = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
-    const re2 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
+    // Regex for component list, error, completed
+    const re1 = /<td>componentList: \[([-a-zA-Z, ]*)\]<\/td>/;
+    const re2 = new RegExp('<td>Error running integtest for component ([a-zA-Z-]*)</td>', 'g');
     const re3 = new RegExp('<td>Completed running integtest for component ([a-zA-Z-]*)</td>', 'g');
     const err_re = /Integration Tests failed to start./;
 
+    // if error, return empty obj
     if(body.match(err_re)){
         return [];
     }
 
-    const compList = body.match(re2)[1].split(', ');
-
+    const compList = body.match(re1)[1].split(', ');
     let compObjs = [];
-
     compList.forEach(comp => {
         compObjs.push({name: comp})
     });
 
-    compErrors_array = [];
-    compFins_array = [];
-    const compError = [...body.matchAll(re1)];
-    compError.forEach(s => compErrors_array.push(s[1]));
+    // set of components that errored out
+    compErrors = new Set()
+    const compError = [...body.matchAll(re2)];
+    compError.forEach(s => compErrors.add(s[1]));
 
+    // set of components that finished
+    compFins = new Set();
     const compFin = [...body.matchAll(re3)];
-    compFin.forEach(s => compFins_array.push(s[1]));
+    compFin.forEach(s => compFins.add(s[1]));
 
+    // create a mapping between component name and whether they have with and/or without security integ tests(in a list)
     let security_map = new Map();
     try{
         yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/testManifest.yml`, 'utf8'));
@@ -136,16 +142,15 @@ async function html_parse(url, integ_num, architecture, req, old_res){
             security_map.set(comp.name, comp['integ-test']['test-configs']);
         });
         
-        
     } catch(err) {
         console.log('testManifest.yml error:', err);
-
     }
+
+
     compObjs.forEach(comp =>{
-        
-        if(compFins_array.includes(comp.name)){
+        if(compFins.has(comp.name)){
             comp.result = 'SUCCESS';
-            if(compErrors_array.includes(comp.name)){
+            if(compErrors.has(comp.name)){
                 comp.result = 'FAILURE';
             }              
         }
@@ -165,24 +170,24 @@ async function html_parse(url, integ_num, architecture, req, old_res){
             comp.result = 'N/A';
         }
     });
-
     return compObjs;
-     
 }
 
 exports.html_parse = html_parse;
 
 
-async function dashboard_parse(url, architecture, req, old_res){
+async function dashboard_parse(url, architecture){
 
     const response = await fetch(url);
 
+    // if the fetch errored out, return an empty object
     if(!response.ok){
         return [];
     }
 
     const body = await response.text();
     
+    // regex for the check and the x
     const re1 = /\u2714  plugins\/([-a-zA-Z ]*)\//g;
     const re2 = /\u2716  plugins\/([-a-zA-Z ]*)\//g;
 
@@ -196,19 +201,16 @@ async function dashboard_parse(url, architecture, req, old_res){
     let plugin_status = {}; // Object with 
 
     const comp_match_success = [...body.matchAll(re1)];
-    
     comp_match_success.forEach(plugin => {
         plugin_status[plugin[1]] = 'SUCCESS';
     });
 
     const comp_match_success_1 = [...body.matchAll(re1_1)];
-
     comp_match_success_1.forEach(plugin => {
         plugin_status[plugin[1]+plugin[2]] = 'SUCCESS';
     });
 
     const comp_match_failed = [...body.matchAll(re2)];
-
     comp_match_failed.forEach(plugin => { 
         plugin_status[plugin[1]] = 'FAILURE';       
     });

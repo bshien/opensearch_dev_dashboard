@@ -10,6 +10,8 @@ To install all the dependencies, run `npm install`.
 
 Run the command `node index.js`, which will start the application at `localhost:3000`.
 
+You can also use `nodemon index.js` for auto refresh on file save.
+
 # High Level Structure
 
 ## Overview

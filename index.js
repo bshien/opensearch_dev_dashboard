@@ -12,7 +12,7 @@ const perf_utils = require('./utils/perf_utils.js');
 // init
 const app = express();
 const port = process.env.PORT || 3000;
-const NUM_OF_BUILDS = 30;
+const NUM_OF_BUILDS = 50;
 // let build_nums = [];
 
 async function fetchh(res, page){
@@ -24,7 +24,6 @@ async function fetchh(res, page){
         folder_name = 'dashboard_build_ymls';
     }
     let url_add = (page === 'dashboards') ? '-dashboards' : '';
-    //let jobs = await fetch('https://build.ci.opensearch.org/job/distribution-build-opensearch/api/json?tree=allBuilds[number,url]');
     let jobs = await fetch(builds_url + '/api/json');
 
     let jobs_json = await jobs.json();
@@ -116,7 +115,7 @@ app.get('/commits/:build_number-:dashboard', function(req, res){
     if(req.params.dashboard === 'd'){
         yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/buildInfo.yml`, 'utf8'));
     }
-    else{
+    else if(req.params.dashboard === 'nd'){
         yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/buildInfo.yml`, 'utf8'));
     }
     res.render('commits', {components: yml_json.components});
@@ -130,7 +129,7 @@ app.get('/CVE/:build_number-:dashboard', function(req, res){
     if(req.params.dashboard === 'd'){
         yml_json = yaml.load(fs.readFileSync(`dashboard_build_ymls/${req.params.build_number}/buildInfo.yml`, 'utf8'));
     }
-    else{
+    else if(req.params.dashboard === 'nd'){
         yml_json = yaml.load(fs.readFileSync(`build_ymls/${req.params.build_number}/buildInfo.yml`, 'utf8'));
     }
 
@@ -149,9 +148,9 @@ app.get('/integ/:build_number-:version-:x64_num?-:arm64_num?-:dashboard', async 
         let x64_url = `https://build.ci.opensearch.org/job/integ-test/${req.params.x64_num}/flowGraphTable/`;
         let arm64_url = `https://build.ci.opensearch.org/job/integ-test/${req.params.arm64_num}/flowGraphTable/`;
 
-        let x64_objs = await utility.html_parse(x64_url, req.params.x64_num, 'x64', req, res);
+        let x64_objs = await utility.html_parse(x64_url, req.params.x64_num, 'x64', req);
   
-        let arm64_objs = await utility.html_parse(arm64_url, req.params.arm64_num, 'arm64', req, res);
+        let arm64_objs = await utility.html_parse(arm64_url, req.params.arm64_num, 'arm64', req);
 
         let compObjs = [];
         let ind = 0;
@@ -180,10 +179,10 @@ app.get('/integ/:build_number-:version-:x64_num?-:arm64_num?-:dashboard', async 
         let arm64_url_without = `https://ci.opensearch.org/ci/dbc/integ-test-opensearch-dashboards/${req.params.version}/${req.params.build_number}/linux/arm64/tar/test-results/${req.params.arm64_num}/integ-test/functionalTestDashboards/without-security/test-results/stdout.txt`;
         
         
-        let x64_with_objs = await utility.dashboard_parse(x64_url_with, 'x64', req, res);
-        let x64_without_objs = await utility.dashboard_parse(x64_url_without,'x64',  req, res);
-        let arm64_with_objs = await utility.dashboard_parse(arm64_url_with, 'arm64',  req, res);
-        let arm64_without_objs = await utility.dashboard_parse(arm64_url_without,'arm64',  req, res);
+        let x64_with_objs = await utility.dashboard_parse(x64_url_with, 'x64');
+        let x64_without_objs = await utility.dashboard_parse(x64_url_without,'x64');
+        let arm64_with_objs = await utility.dashboard_parse(arm64_url_with, 'arm64');
+        let arm64_without_objs = await utility.dashboard_parse(arm64_url_without,'arm64');
 
         let compObjs = [];
 

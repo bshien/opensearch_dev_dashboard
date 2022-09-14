@@ -2,7 +2,7 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 const utility = require('./utils.js');
 
-const NUM_OF_PERFS = 20;
+const NUM_OF_PERFS = 50;
 
 async function perf_fetch(res){
     // init
@@ -85,6 +85,7 @@ function create_perf_obj(perf_num, security){
 
     let obj = {number: perf_num.number};
     obj.running = 'Done'; // Assume done, if it's still running it will be set later
+    obj.security_enabled = security;
 
     // check for folder markers
     if(fs.existsSync(`perf_jsons/${perf_num.number}/ABORTED`)){
@@ -105,7 +106,6 @@ function create_perf_obj(perf_num, security){
             obj.result = metrics_json.result;
             obj.version = metrics_json.version;
             obj.architecture = metrics_json.architecture;
-            obj.security_enabled = security;
             obj.startTime = utility.start_date_convert(metrics_json.testResults.testStartTime);
             obj.duration = utility.convert_build_duration(metrics_json.testResults.testDuration);
 
